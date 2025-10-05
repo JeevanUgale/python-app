@@ -53,11 +53,16 @@ What you'll get
 
    file env variables
    
-   SECRET_KEY=any-alphabetic-words /
-   DB_USER=flaskuser /
-   DB_PASS=flask123 /
-   DB_HOST=DB-server-ip /
-   DB_PORT=3306 /
+   SECRET_KEY=any-alphabetic-words
+   
+   DB_USER=flaskuser
+   
+   DB_PASS=flask123
+   
+   DB_HOST=DB-server-ip
+   
+   DB_PORT=3306
+   
    DB_NAME=users_db
    
 **4. Create a virtualenv and install dependencies:**
