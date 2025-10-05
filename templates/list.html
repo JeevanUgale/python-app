@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <h1>Saved Users</h1>
+  {% if users %}
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>First</th>
+          <th>Last</th>
+          <th>Age</th>
+          <th>Qualification</th>
+          <th>Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>{{ u.id }}</td>
+          <td>{{ u.first_name }}</td>
+          <td>{{ u.last_name }}</td>
+          <td>{{ u.age }}</td>
+          <td>{{ u.qualification }}</td>
+          <td>{{ u.address }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No users yet. <a href="{{ url_for('index') }}">Add one</a>.</p>
+  {% endif %}
+{% endblock %}
