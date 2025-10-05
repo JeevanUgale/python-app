@@ -14,8 +14,11 @@ What you'll get
 **1. Install MariaDB:**
 
    sudo apt update
+   
    sudo apt install mariadb-server -y
+   
    sudo systemctl enable mariadb
+   
    sudo systemctl start mariadb
 
 **2. create DB and user:**
@@ -33,7 +36,9 @@ What you'll get
 **1. Install packages:**
 
    sudo apt udpate
+   
    sudo apt install mysql-client python3.12-venv -y
+   
    #clone the source code and cd into the directory.
    
 **2. dump the sqldump file into databse server DB:**
@@ -47,6 +52,7 @@ What you'll get
    touch .env   #create a .env file to inject the DB creds. and change the values of varialbles as per your configuration.
 
    file env variables
+   
    SECRET_KEY=any-alphabetic-words
    DB_USER=flaskuser
    DB_PASS=flask123
@@ -57,7 +63,9 @@ What you'll get
 **4. Create a virtualenv and install dependencies:**
 
    python3 -m venv .venv
+   
    source .venv/bin/activate
+   
    pip install -r requirements.txt
 
 **5. Run the app:**
