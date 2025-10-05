@@ -41,7 +41,7 @@ What you'll get
    
    #clone the source code and cd into the directory.
    
-**2. dump the sqldump file into databse server DB:**
+**2. inject the sqldump file into databse server DB:**
 
    mysql -u flaskuser -p users_db -h db-server-ip/endpoint users_db < newdump.sql
 
