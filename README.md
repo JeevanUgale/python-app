@@ -1,89 +1,91 @@
 # Python Flask Application
+## **Overview**
+This project is a web application built with the Flask framework and Python 3. It leverages MariaDB as the backend database and uses Gunicorn as the WSGI server for production-ready deployment. The application is designed for simplicity, scalability, and easy setup, making it ideal for small to medium web projects or as a template for more complex backends.
 
-This repository contains a **Python Flask web application** that demonstrates a typical Flask project structure with a relational database backend (MariaDB/MySQL).  
-The application exposes basic web routes and uses SQLAlchemy for ORM-based database interactions.
+# Technologies Used
+## **Python 3**
 
----
+Flask (Web framework)
 
-## 🛠️ Technologies Used
-- **Python 3.12+**
-- **Flask** – web framework
-- **Flask-SQLAlchemy** – ORM for database operations
-- **Gunicorn** – WSGI HTTP server for production
-- **MariaDB / MySQL** – relational database
-- **pip / build / wheel / setuptools** – Python packaging tools
-- **dotenv** – for environment configuration
+MariaDB (Database)
 
----
+Gunicorn (WSGI HTTP server)
 
-## ⚙️ How the Application Works
-1. The application is built as a Python package (`python_app`) with a factory function `create_app()` that initializes the Flask app and configures the database.
-2. Environment variables (from the `.env` file) provide database credentials and runtime settings.
-3. Gunicorn loads the app from `python_app/wsgi.py` and serves it on the configured host and port.
-4. SQLAlchemy connects to the MariaDB database to perform CRUD operations.
+python-dotenv (Environment variable management)
 
----
+# How the Application Works
+Handles web and API requests via Flask routes and controllers.
 
-## 📦 Prerequisites
-- A Linux server (e.g., Ubuntu on EC2)
-- `sudo` privileges
-- Network access to your MariaDB server
+Connects securely to a MariaDB database for persistent storage.
 
----
+Uses environment variables for all configuration, improving security and portability.
 
-## 🗄️ Database Setup (MariaDB)
+Runs with Gunicorn for multi-worker production serving.
 
-### 1. Install MariaDB
-```bash
-sudo apt update && sudo apt install mariadb-server -y     # Update package index and install MariaDB server
+# Database Setup
+## 1. Install MariaDB:
 
-### 2. Configure Bind Address
-```bash
-sudo nano /etc/mysql/mariadb.conf.d/50-server.cnf          # Open MariaDB config file
+shell
+`sudo apt update && sudo apt install mariadb-server -y`
 
-# Change the following line:
-bind-address = 0.0.0.0                                     # Allow MariaDB to accept connections from all hosts
+## 2. Configuration Change:
 
-sudo systemctl restart mariadb                             # Restart MariaDB to apply config changes
+**To allow external connections (not just localhost), modify the bind address in /etc/mysql/mariadb.conf.d/50-server.cnf:**
 
-### 3. Create Database, User, and Grant Privileges
-CREATE DATABASE users_db;                                  -- Create a new database
-CREATE USER 'flaskuser'@'%' IDENTIFIED BY 'pass';          -- Create a new user with password
-GRANT ALL PRIVILEGES ON users_db.* TO 'flaskuser'@'%';     -- Grant full access on the database to the user
-FLUSH PRIVILEGES;                                          -- Apply changes
-EXIT;                                                      -- Exit MariaDB prompt
+**text**
+bind-address = 0.0.0.0
+Restart MariaDB if this was changed:
 
-### Application Setup
+shell
+`sudo systemctl restart mariadb`
 
-### 1. Install Required Packages
-sudo apt update && sudo apt install python3-venv mysql-client python3-pip -y   # Install Python venv, MySQL client, and pip
+## 3. Create Database and User:
 
-### 2. Configure Environment
-cp .env.example .env                                       # Copy example environment file to .env
-vim .env                                                  # Edit .env to set DB credentials and other configs
+sql
+`CREATE DATABASE users_db;
+CREATE USER 'flaskuser'@'%' IDENTIFIED BY 'pass';
+GRANT ALL PRIVILEGES ON users_db.* TO 'flaskuser'@'%';
+FLUSH PRIVILEGES;`
 
-### 3. Set Up Python Virtual Environment
-python3 -m venv .venv                                      # Create a Python virtual environment
-source .venv/bin/activate                                  # Activate the virtual environment
-pip install --upgrade pip build wheel setuptools          # Upgrade pip and install build tools
+# Application Setup
+## 1. Install System Packages:
 
-### 4. Build and Install the Application
-python -m build                                            # Build the project into a distributable package
-pip install dist/*.whl                                     # Install the built package
+shell
+`sudo apt update && sudo apt install python3-venv mysql-client python3-pip -y`
 
-### 5. Install Gunicorn
-pip install gunicorn                                       # Install Gunicorn WSGI server
+## 2. Clone the Repository:
 
-### 6. Run the Application with Gunicorn
-gunicorn -w 2 -b 0.0.0.0:5000 python_app.wsgi:app &         # Run the app with 2 workers, bound to port 5000 in background
+shell
+`git clone https://github.com/JeevanUgale/python-app.git
+cd python-app`
 
-Notes:
+## 3. Environment Variables:
 
--w 2 → Use 2 worker processes (adjust based on CPU cores)
+**Copy the example file and update your environment values:**
 
--b 0.0.0.0:5000 → Binds the app to all network interfaces on port 5000
+shell
+`cp .env.example .env
+Edit .env to set:`
 
-& → Runs the process in the background
+text
+DB_HOST=<db_host>
+DB_NAME=users_db
+DB_USER=flaskuser
+DB_PASS=pass
+FLASK_SECRET_KEY=<your_secret>
 
-### 7. Verify Deployment
-http://<server-public-ip>:5000
+## 4. Python Environment and App Installation:
+
+shell
+`python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip build wheel setuptools
+python -m build
+pip install dist/*.whl
+pip install gunicorn`
+
+## 5. Running the Application
+Run the Flask app using Gunicorn with two workers, listening on all interfaces at port 5000:
+
+shell
+`gunicorn -w 2 -b 0.0.0.0:5000 python_app.wsgi:app &`
