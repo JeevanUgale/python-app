@@ -2,7 +2,8 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
-basedir = Path(__file__).resolve().parent
+# Load .env from project root (one level up from package)
+basedir = Path(__file__).resolve().parents[1]
 load_dotenv(basedir / '.env')
 
 class Config:

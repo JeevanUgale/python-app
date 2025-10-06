@@ -1,0 +1,5 @@
+include README.md
+include newdump.sql
+include .env.example
+recursive-include python_app/templates *
+recursive-include python_app/static *

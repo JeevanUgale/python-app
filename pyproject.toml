@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "python-app"
+version = "0.1.0"
+description = "Small Flask app that collects users via a form and stores them in a MariaDB database"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "MIT" }
+authors = [ { name = "Jeevan Ugale", email = "jeevan@example.com" } ]
+
+dependencies = [
+  "Flask>=2.2.0",
+  "Flask-WTF>=1.0.0",
+  "Flask-SQLAlchemy>=3.0.0",
+  "pymysql>=1.0.2",
+  "python-dotenv>=1.0.0",
+]
+
+[project.scripts]
+python-app = "python_app.app:run"

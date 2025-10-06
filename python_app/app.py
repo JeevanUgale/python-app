@@ -1,7 +1,8 @@
+import os
 from flask import Flask, render_template, redirect, url_for, flash
-from config import Config
-from models import db, User
-from forms import UserForm
+from .config import Config
+from .models import db, User
+from .forms import UserForm
 
 
 def create_app():
@@ -37,6 +38,13 @@ def create_app():
     return app
 
 
-if __name__ == '__main__':
+def run():
     app = create_app()
-    app.run(debug=True, host='0.0.0.0')
+    port = int(os.environ.get('PORT', 5000))
+    host = os.environ.get('HOST', '0.0.0.0')
+    debug = app.config.get('DEBUG', False)
+    app.run(host=host, port=port, debug=debug)
+
+
+if __name__ == '__main__':
+    run()

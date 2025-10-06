@@ -1,59 +1,17 @@
-# Python User Form App
+Metadata-Version: 2.4
+Name: python-app
+Version: 0.1.0
+Summary: Small Flask app that collects users via a form and stores them in a MariaDB database
+Author-email: Jeevan Ugale <jeevan@example.com>
+License: MIT
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+Requires-Dist: Flask>=2.2.0
+Requires-Dist: Flask-WTF>=1.0.0
+Requires-Dist: Flask-SQLAlchemy>=3.0.0
+Requires-Dist: pymysql>=1.0.2
+Requires-Dist: python-dotenv>=1.0.0
 
-This is a small Flask application that provides a user form (first_name, last_name, age, qualification, address), stores data in MariaDB, and shows a list of saved users.
-
-What you'll get
-- Flask backend with routes to create and list users
-- WTForms-based form with validation
-- SQLAlchemy models and configuration for MariaDB
-
-Developer quick start
-
-1. Create and activate a virtual environment (macOS / Linux):
-
-```bash
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-```
-
-2. Install runtime dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-3. Create a `.env` in the project root (see `.env.example`) and set DB credentials and SECRET_KEY.
-
-4. Run the app (development):
-
-```bash
-# run from source (backwards compatible)
-python app.py
-
-# or run the packaged module
-python -m python_app
-```
-
-Open http://localhost:5000 in your browser.
-
-Packaging (build wheel and sdist)
-
-```bash
-# in an activated venv
-python -m pip install --upgrade build wheel setuptools
-python -m build
-# artifacts are in dist/
-```
-
-CI
-
-- A `Jenkinsfile` is included which creates a venv on the agent, installs build tools and dependencies, builds artifacts, installs the wheel, runs a smoke test (`scripts/smoke_test.py`) and archives `dist/*`.
-
-Notes
-- Templates and static files are packaged inside the `python_app` package (top-level `templates/` and `static/` were removed to avoid duplication).
-- Don't commit sensitive credentials into `.env`; use environment variables in CI/production.
-- For production, run under a WSGI server (gunicorn) and use a proper migration tool (alembic) instead of `db.create_all()`.
 # Python User Form App
 
 This is a small Flask application that provides a user form (first_name, last_name, age, qualification, address), stores data in MariaDB, and shows a list of saved users.
