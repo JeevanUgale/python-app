@@ -77,13 +77,17 @@ What you'll get
    
    sudo systemctl start mariadb
 
-**2. create DB and user:**
+**2. change the bind address to 0.0.0.0**
+
+   vim /etc/mysql/mariadb.conf.d/50-server.cnf (ubuntu)
+
+**3. create DB and user:**
 
    CREATE DATABASE users_db;
    
    CREATE USER 'flaskuser'@'APP_SERVER_PRIVATE_IP' IDENTIFIED BY 'password';
    
-   GRANT ALL PRIVILEGES ON users_db.* TO 'flaskuser'@'APP_SERVER_PRIVATE_IP';
+   GRANT ALL PRIVILEGES ON users_db.* TO 'flaskuser'@'%';
    
    FLUSH PRIVILEGES;
 
