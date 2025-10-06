@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+{% block content %}
+  <h1>Edit User #{{ user.id }}</h1>
+  <form method="post">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+      {{ form.first_name.label(class_='form-label') }}
+      {{ form.first_name(class_='form-control') }}
+      {% for err in form.first_name.errors %}<div class="text-danger">{{ err }}</div>{% endfor %}
+    </div>
+    <div class="mb-3">
+      {{ form.last_name.label(class_='form-label') }}
+      {{ form.last_name(class_='form-control') }}
+      {% for err in form.last_name.errors %}<div class="text-danger">{{ err }}</div>{% endfor %}
+    </div>
+    <div class="mb-3">
+      {{ form.age.label(class_='form-label') }}
+      {{ form.age(class_='form-control') }}
+      {% for err in form.age.errors %}<div class="text-danger">{{ err }}</div>{% endfor %}
+    </div>
+    <div class="mb-3">
+      {{ form.qualification.label(class_='form-label') }}
+      {{ form.qualification(class_='form-control') }}
+      {% for err in form.qualification.errors %}<div class="text-danger">{{ err }}</div>{% endfor %}
+    </div>
+    <div class="mb-3">
+      {{ form.address.label(class_='form-label') }}
+      {{ form.address(class_='form-control', rows=3) }}
+      {% for err in form.address.errors %}<div class="text-danger">{{ err }}</div>{% endfor %}
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a href="{{ url_for('list_users') }}" class="btn btn-secondary">Cancel</a>
+  </form>
+{% endblock %}

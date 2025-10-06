@@ -9,3 +9,7 @@ class UserForm(FlaskForm):
     qualification = StringField('Qualification', validators=[Length(max=200)])
     address = TextAreaField('Address', validators=[Length(max=1000)])
     submit = SubmitField('Save')
+
+
+class DeleteForm(FlaskForm):
+    submit = SubmitField('Delete')

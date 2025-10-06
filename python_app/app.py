@@ -33,7 +33,44 @@ def create_app():
     @app.route('/users')
     def list_users():
         users = User.query.order_by(User.id.desc()).all()
-        return render_template('list.html', users=users)
+        from .forms import DeleteForm
+        delete_form = DeleteForm()
+        return render_template('list.html', users=users, delete_form=delete_form)
+
+
+    @app.route('/users/<int:user_id>/edit', methods=['GET', 'POST'])
+    def edit_user(user_id):
+        user = User.query.get_or_404(user_id)
+        form = UserForm(obj=user)
+        if form.validate_on_submit():
+            user.first_name = form.first_name.data.strip()
+            user.last_name = form.last_name.data.strip()
+            user.age = form.age.data
+            user.qualification = (form.qualification.data or '').strip()
+            user.address = (form.address.data or '').strip()
+            db.session.commit()
+            flash('User updated successfully', 'success')
+            return redirect(url_for('list_users'))
+        return render_template('edit.html', form=form, user=user)
+
+
+    @app.route('/users/<int:user_id>/delete', methods=['POST'])
+    def delete_user(user_id):
+        form = None
+        try:
+            from .forms import DeleteForm
+            form = DeleteForm()
+        except Exception:
+            pass
+        # Validate CSRF if form present
+        if form and not form.validate_on_submit():
+            flash('Invalid delete request', 'danger')
+            return redirect(url_for('list_users'))
+        user = User.query.get_or_404(user_id)
+        db.session.delete(user)
+        db.session.commit()
+        flash('User deleted', 'success')
+        return redirect(url_for('list_users'))
 
     return app
 
