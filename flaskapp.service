@@ -12,3 +12,21 @@ Restart=always
 
 [Install]
 WantedBy=multi-user.target
+
+
+# run application on the same server with ubuntu user
+
+#[Unit]
+#Description=Python Flask Gunicorn App
+#After=network.target
+
+#[Service]
+#User=ubuntu
+#Group=ubuntu
+#WorkingDirectory=/opt/pyapp
+#EnvironmentFile=/opt/pyapp/.env
+#ExecStart=/opt/pyapp/.venv/bin/gunicorn -w 2 -b 0.0.0.0:5000 python_app.wsgi:app
+#Restart=always
+
+#[Install]
+#WantedBy=multi-user.target
