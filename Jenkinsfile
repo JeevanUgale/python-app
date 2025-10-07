@@ -71,9 +71,15 @@ pipeline {
                 sh '. .venv/bin/activate && pip install gunicorn'
             }
         }
+        stage('copy systemd service file') {
+            steps {
+                sh 'sudo cp flaskapp.service /etc/systemd/system/flaskapp.service'
+                sh 'cat /etc/systemd/system/flaskapp.service'
+            }
+        }
         stage('Run the app with Gunicorn') {
             steps {
-                sh 'sudo systemctl daemon-reload && sudo systemctl start python_app && sudo systemctl status python_app'
+                sh 'sudo systemctl daemon-reload && sudo systemctl start flaskapp && sudo systemctl status flaskapp '
             }
         }
     }
