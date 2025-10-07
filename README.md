@@ -118,3 +118,9 @@ shell
 -w 2 → Number of worker processes (adjust according to CPU cores)\
 -b 0.0.0.0:5000 → Bind to all network interfaces on port 5000\
 & → Runs the process in the background
+
+# Jenkins Deployment for Production
+
+1. create/copy existing systemd service file for python flask application to avoid jenkins pipeline potential errors while deploying/hosting application
+
+`cp flaskapp.service /etc/systemd/system/`

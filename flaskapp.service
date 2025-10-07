@@ -1,4 +1,4 @@
-# /etc/systemd/system/python_app.service
+# /etc/systemd/system/flaskapp.service
 [Unit]
 Description=Python Flask Gunicorn App
 After=network.target
