@@ -1,0 +1,14 @@
+# /etc/systemd/system/python_app.service
+[Unit]
+Description=Python Flask Gunicorn App
+After=network.target
+
+[Service]
+User=jenkins
+WorkingDirectory=/var/lib/jenkins/workspace/python-app
+EnvironmentFile=/var/lib/jenkins/workspace/python-app/.env
+ExecStart=/var/lib/jenkins/workspace/python-app/.venv/bin/gunicorn -w 2 -b 0.0.0.0:5000 python_app.wsgi:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
