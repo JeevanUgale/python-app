@@ -83,11 +83,12 @@ shell
 
 **text**
 
-DB_HOST=<db_host>\
-DB_NAME=users_db\
-DB_USER=flaskuser\
-DB_PASS=pass\
-FLASK_SECRET_KEY=<your_secret>
+SECRET_KEY=please-change-me
+DB_USER=flaskuser
+DB_PASS=flask_password
+DB_HOST=<host-ip or endpoint>
+DB_PORT=3306
+DB_NAME=users_db
 
 ## 4. Python Environment and App Installation:
 
