@@ -212,18 +212,14 @@ Delete a user by ID.
 sudo apt update && sudo apt upgrade -y
 
 # Install Python and dependencies
-sudo apt install python3 python3-pip python3-venv mysql-server nginx -y
+sudo apt install python3 python3-pip python3-venv mysql-client -y
 
-# Create application user
-sudo useradd -m -s /bin/bash flaskapp
-sudo su - flaskapp
-```
 
 ### 2. Application Deployment
 ```bash
 # Clone application
-git clone <your-repo> /home/flaskapp/python-app
-cd /home/flaskapp/python-app
+git clone <your-repo>
+cd /home/ubuntu/python-app
 
 # Create virtual environment
 python3 -m venv venv
