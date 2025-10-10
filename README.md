@@ -77,6 +77,31 @@ cp .env.example .env
 # Edit .env with your database credentials and settings
 vim .env
 ```
+## Configuration
+
+### Environment Variables (.env)
+```bash
+# Database Configuration
+DB_USER=flaskuser
+DB_PASS=flask_password
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_NAME=users_db
+
+# Application Configuration
+SECRET_KEY=your-secret-key-here
+DEBUG=False
+
+# Service Ports
+USER_SERVICE_PORT=5001
+WEB_FRONTEND_PORT=5000
+
+# Service URLs
+USER_SERVICE_URL=http://localhost:5001
+
+# General Configuration
+HOST=0.0.0.0
+```
 
 ### 2. Install Dependencies
 ```bash
@@ -122,31 +147,6 @@ sudo systemctl start web-frontend
   - http://localhost:5000/health
   - http://localhost:5001/health
 
-## Configuration
-
-### Environment Variables (.env)
-```bash
-# Database Configuration
-DB_USER=flaskuser
-DB_PASS=flask_password
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_NAME=users_db
-
-# Application Configuration
-SECRET_KEY=your-secret-key-here
-DEBUG=False
-
-# Service Ports
-USER_SERVICE_PORT=5001
-WEB_FRONTEND_PORT=5000
-
-# Service URLs
-USER_SERVICE_URL=http://localhost:5001
-
-# General Configuration
-HOST=0.0.0.0
-```
 
 # View logs
 ````bash
