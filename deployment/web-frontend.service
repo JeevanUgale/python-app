@@ -1,0 +1,26 @@
+[Unit]
+Description=Web Frontend Service - Microservices User Interface
+After=network.target user-service.service
+Requires=user-service.service
+
+[Service]
+Type=simple
+User=flaskapp
+Group=flaskapp
+WorkingDirectory=/home/flaskapp/python-app
+Environment=PATH=/home/flaskapp/python-app/venv/bin
+Environment=PYTHONPATH=/home/flaskapp/python-app
+ExecStart=/home/flaskapp/python-app/venv/bin/python services/web_frontend/app.py
+ExecReload=/bin/kill -s HUP $MAINPID
+Restart=always
+RestartSec=3
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/flaskapp/python-app
+
+[Install]
+WantedBy=multi-user.target
