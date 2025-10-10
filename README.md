@@ -1,126 +1,260 @@
-# Python Flask Application
-## **Overview**
-This project is a web application built with the Flask framework and Python 3. It leverages MariaDB as the backend database and uses Gunicorn as the WSGI server for production-ready deployment. The application is designed for simplicity, scalability, and easy setup, making it ideal for small to medium web projects or as a template for more complex backends.
+# Python Microservices Application
 
-# Technologies Used
-## **Python 3**
+This application has been refactored from a monolithic Flask application into a microservices architecture. The application manages user data with CRUD operations, split across multiple independent services.
 
-Flask (Web framework)
+## Architecture Overview
 
-MariaDB (Database)
+```
+┌─────────────────┐    HTTP API    ┌─────────────────┐
+│  Web Frontend   │ ──────────────▶ │  User Service   │
+│    (Port 5000)  │                 │   (Port 5001)   │
+│                 │                 │                 │
+│ - Templates     │                 │ - REST API      │
+│ - Forms         │                 │ - Database      │
+│ - User Interface│                 │ - User CRUD     │
+└─────────────────┘                 └─────────────────┘
+```
 
-Gunicorn (WSGI HTTP server)
+## Services
 
-python-dotenv (Environment variable management)
+### 1. User Service (Port 5001)
+- **Purpose**: Handles all user data operations
+- **Technology**: Flask REST API + SQLAlchemy
+- **Database**: MySQL
+- **Endpoints**:
+  - `GET /health` - Health check
+  - `GET /api/users` - List all users
+  - `GET /api/users/{id}` - Get specific user
+  - `POST /api/users` - Create new user
+  - `PUT /api/users/{id}` - Update user
+  - `DELETE /api/users/{id}` - Delete user
 
-# How the Application Works
-Handles web and API requests via Flask routes and controllers.
+### 2. Web Frontend Service (Port 5000)
+- **Purpose**: Provides web interface and user interaction
+- **Technology**: Flask + WTForms + Bootstrap
+- **Communication**: HTTP requests to User Service
+- **Features**:
+  - User forms (create/edit)
+  - User listing with actions
+  - Flash messages and validation
+  - Responsive UI
 
-Connects securely to a MariaDB database for persistent storage.
+### 3. Shared Components
+- **Configuration management**: Centralized config classes
+- **Utilities**: Health checks, retry mechanisms, API response formats
+- **Common patterns**: Error handling, service communication
 
-Uses environment variables for all configuration, improving security and portability.
+## Setup and Installation
 
-Runs with Gunicorn for multi-worker production serving.
+### Database Setup
 
-# Database Setup
-## 1. Install MariaDB:
+```sql
+CREATE DATABASE users_db;
+CREATE USER 'flaskuser'@'%' IDENTIFIED BY 'flask_password';
+GRANT ALL PRIVILEGES ON users_db.* TO 'flaskuser'@'%';
+FLUSH PRIVILEGES;
+```
 
-shell
+### Prerequisites (Install required packages)
+- Python 3.8+
+- MySQL Database/mysql-client
+- pip package manager
+- Systemd for service management
 
-`sudo apt update && sudo apt install mariadb-server -y`
+````bash
+sudo apt udpdate
+sudo apt install python3-venv python3-pip mysql-client -y
+````
 
-## 2. Configuration Change:
+### 1. Environment Setup
+```bash
+# Clone or navigate to the project directory
+cd /path/to/python-app
 
-To allow external connections (not just localhost), 
-modify the bind address in /etc/mysql/mariadb.conf.d/50-server.cnf:
+# Copy environment configuration
+cp .env.example .env
 
-**text**
-**bind-address = 0.0.0.0**
+# Edit .env with your database credentials and settings
+vim .env
+```
 
-**Restart MariaDB if this was changed:**
+### 2. Install Dependencies
+```bash
+# Install all dependencies
+pip install -r requirements.txt
 
-shell
+# Or install service-specific dependencies
+pip install -r services/user_service/requirements.txt
+pip install -r services/web_frontend/requirements.txt
+```
 
-`sudo systemctl restart mariadb`
+## Running the Application
 
-## 3. Create Database and User:
+### Start Services Individually
 
-sql
+**Terminal 1 - User Service:**
+```bash
+sudo cp deployment/user-service.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable user-service
+sudo systemctl start user-service
+```
 
-`CREATE DATABASE users_db;` -- Create the database
+**Terminal 2 - Web Frontend:**
+```bash
+sudo cp deployment/web-frontend.service /etc/systemd/system/
+sudo systemctl enbale web-frontend
+sudo systemctl start web-frontend
+```
 
-`CREATE USER 'flaskuser'@'%' IDENTIFIED BY 'pass';` -- Create a new user with password
+## Service Management
 
-`GRANT ALL PRIVILEGES ON users_db.* TO 'flaskuser'@'%';` -- Grant full privileges to the user
+### Health Checks
+```bash
+./scripts/health_check.sh
+```
 
-`FLUSH PRIVILEGES;` -- Apply the privilege changes
+### Individual Service URLs
+- **Web Frontend**: http://localhost:5000
+- **User Service API**: http://localhost:5001
+- **Health Checks**: 
+  - http://localhost:5000/health
+  - http://localhost:5001/health
 
+## Configuration
 
-# Application Setup
-## 1. Install System Packages:
-
-shell
-
-`sudo apt update && sudo apt install python3-venv mysql-client python3-pip -y` # Install Python virtual environment, MySQL client, and pip
-
-## 2. Clone the Repository:
-
-shell
-
-`git clone https://github.com/JeevanUgale/python-app.git`
-
-`cd python-app`
-
-## 3. Environment Variables:
-
-**Copy the example file and update your environment values:**
-
-shell
-
-`cp .env.example .env` # Copy example environment file to .env
-
-`vim .env` # Edit .env to set DB credentials and other settings
-
-**text**
-
-SECRET_KEY=please-change-me\
-DB_USER=flaskuser\
-DB_PASS=flask_password\
-DB_HOST=<host-ip or endpoint>\
-DB_PORT=3306\
+### Environment Variables (.env)
+```bash
+# Database Configuration
+DB_USER=flaskuser
+DB_PASS=flask_password
+DB_HOST=127.0.0.1
+DB_PORT=3306
 DB_NAME=users_db
 
-## 4. Python Environment and App Installation:
+# Application Configuration
+SECRET_KEY=your-secret-key-here
+DEBUG=False
 
-shell
+# Service Ports
+USER_SERVICE_PORT=5001
+WEB_FRONTEND_PORT=5000
 
-`python3 -m venv .venv` # Create a Python virtual environment
+# Service URLs
+USER_SERVICE_URL=http://localhost:5001
 
-`source .venv/bin/activate` # Activate the virtual environment
+# General Configuration
+HOST=0.0.0.0
+```
 
-`pip install --upgrade pip build wheel setuptools` # Upgrade pip and install build tools
+# View logs
+````bash
+sudo journalctl -u user-service -f
+sudo journalctl -u web-frontend -f
+````
 
-`python -m build` # Build the project into a distributable package
+### 6. Nginx Configuration (Optional)
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
 
-`pip install dist/*.whl` # Install the built package
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
 
-`pip install gunicorn` # Install Gunicorn WSGI server
+    location /api/ {
+        proxy_pass http://localhost:5001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+```
 
-## 5. Running the Application
-Run the Flask app using Gunicorn with two workers, listening on all interfaces at port 5000:
+## Monitoring and Maintenance
 
-shell
+### Log Files
+- Application logs: Check service outputs via `journalctl`
+- Nginx logs: `/var/log/nginx/access.log` and `/var/log/nginx/error.log`
+- System logs: `/var/log/syslog`
 
-`gunicorn -w 2 -b 0.0.0.0:5000 python_app.wsgi:app &` # Run the app with 2 workers, bind to port 5000, in the background
+### Health Monitoring
+```bash
+# Check service health
+curl http://localhost:5000/health
+curl http://localhost:5001/health
 
-## Notes:
+# Monitor system resources
+htop
+df -h
+free -h
+```
 
--w 2 → Number of worker processes (adjust according to CPU cores)\
--b 0.0.0.0:5000 → Bind to all network interfaces on port 5000\
-& → Runs the process in the background
+### Backup Strategy
+- Database: Regular MySQL dumps
+- Application: Code in version control
+- Configuration: Backup `.env` and service files
 
-# Jenkins Deployment for Production
+## Migration from Monolithic App
 
-1. create/copy existing systemd service file for python flask application to avoid jenkins pipeline potential errors while deploying/hosting application
+The original monolithic application (`python_app/`) has been decomposed into:
 
-`cp flaskapp.service /etc/systemd/system/`
+1. **Database logic** → User Service
+2. **Web interface** → Web Frontend Service  
+3. **Shared configuration** → Shared components
+
+### Key Changes:
+- Database operations now happen via REST API calls
+- Form handling moved to frontend service
+- Database models isolated in User Service
+- Configuration centralized in shared components
+- Inter-service communication via HTTP
+
+### Benefits:
+- **Scalability**: Services can be scaled independently
+- **Maintainability**: Clear separation of concerns
+- **Deployment**: Services can be deployed separately
+- **Technology diversity**: Different services can use different tech stacks
+- **Fault isolation**: Failure in one service doesn't affect others
+
+## API Documentation
+
+### User Service REST API
+
+#### GET /api/users
+Returns list of all users.
+```json
+{
+  "success": true,
+  "users": [
+    {
+      "id": 1,
+      "first_name": "John",
+      "last_name": "Doe",
+      "age": 30,
+      "qualification": "Engineer",
+      "address": "123 Main St"
+    }
+  ]
+}
+```
+
+#### POST /api/users
+Create a new user.
+```json
+{
+  "first_name": "John",
+  "last_name": "Doe",
+  "age": 30,
+  "qualification": "Engineer",
+  "address": "123 Main St"
+}
+```
+
+#### PUT /api/users/{id}
+Update existing user (partial updates supported).
+
+#### DELETE /api/users/{id}
+Delete a user by ID.
