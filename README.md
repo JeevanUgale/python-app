@@ -105,6 +105,12 @@ HOST=0.0.0.0
 
 ### 2. Install Dependencies
 ```bash
+# Create Virtual Python Environment
+python3 -m venv .venv
+
+# Set Virtual Environment
+source .venv/bin/activate
+
 # Install all dependencies
 pip install -r requirements.txt
 
