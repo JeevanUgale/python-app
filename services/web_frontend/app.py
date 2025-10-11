@@ -1,11 +1,12 @@
 import requests
 import os
-from flask import Flask, render_template, redirect, url_for, flash, request as flask_request
+from flask import Flask, render_template, redirect, url_for, flash, request as flask_request, session
 from flask_wtf import FlaskForm
-from wtforms import StringField, IntegerField, TextAreaField, SubmitField, HiddenField
-from wtforms.validators import DataRequired, NumberRange
+from wtforms import StringField, IntegerField, TextAreaField, SubmitField, HiddenField, PasswordField
+from wtforms.validators import DataRequired, NumberRange, Length, Optional
 from pathlib import Path
 from dotenv import load_dotenv
+from functools import wraps
 
 # Load .env from project root
 basedir = Path(__file__).resolve().parents[2]
@@ -14,12 +15,27 @@ load_dotenv(basedir / '.env')
 # Configuration for User Service
 USER_SERVICE_URL = os.environ.get('USER_SERVICE_URL', 'http://localhost:5001')
 
+class LoginForm(FlaskForm):
+    username = StringField('Username (First Name)', validators=[DataRequired()])
+    password = PasswordField('Password', validators=[DataRequired()])
+    submit = SubmitField('Login')
+
 class UserForm(FlaskForm):
     first_name = StringField('First Name', validators=[DataRequired()])
     last_name = StringField('Last Name', validators=[DataRequired()])
     age = IntegerField('Age', validators=[DataRequired(), NumberRange(min=1, max=150)])
     qualification = StringField('Qualification')
     address = TextAreaField('Address')
+    password = PasswordField('Password (Optional)', validators=[Optional(), Length(min=6, message='Password must be at least 6 characters long')])
+    submit = SubmitField('Save')
+
+class EditUserForm(FlaskForm):
+    first_name = StringField('First Name', validators=[DataRequired()])
+    last_name = StringField('Last Name', validators=[DataRequired()])
+    age = IntegerField('Age', validators=[DataRequired(), NumberRange(min=1, max=150)])
+    qualification = StringField('Qualification')
+    address = TextAreaField('Address')
+    password = PasswordField('Password (leave blank to keep current)', validators=[Optional(), Length(min=6, message='Password must be at least 6 characters long')])
     submit = SubmitField('Save')
 
 class DeleteForm(FlaskForm):
@@ -92,6 +108,33 @@ class UserServiceClient:
         except Exception as e:
             print(f"Error deleting user {user_id}: {e}")
             return False
+    
+    def authenticate_user(self, username, password):
+        """Authenticate user with User Service"""
+        try:
+            response = requests.post(
+                f"{self.base_url}/api/auth/login",
+                json={'username': username, 'password': password},
+                headers={'Content-Type': 'application/json'},
+                timeout=30
+            )
+            if response.status_code == 200:
+                return response.json()
+            return None
+        except Exception as e:
+            print(f"Error authenticating user: {e}")
+            return None
+
+
+def login_required(f):
+    """Decorator to require login for certain routes"""
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'user_id' not in session:
+            flash('Please log in to access this page.', 'warning')
+            return redirect(url_for('login'))
+        return f(*args, **kwargs)
+    return decorated_function
 
 
 def create_app():
@@ -130,9 +173,14 @@ def create_app():
                 'address': (form.address.data or '').strip(),
             }
             
+            # Only include password if it's provided
+            if form.password.data and form.password.data.strip():
+                user_data['password'] = form.password.data.strip()
+            
             if user_service.create_user(user_data):
                 flash('User saved successfully', 'success')
-                return redirect(url_for('list_users'))
+                # Clear the form by creating a new instance
+                form = UserForm()
             else:
                 flash('Error saving user. Please try again.', 'danger')
         
@@ -151,10 +199,10 @@ def create_app():
             flash('User not found', 'danger')
             return redirect(url_for('list_users'))
         
-        form = UserForm()
+        form = EditUserForm()
         
         if flask_request.method == 'GET':
-            # Pre-populate form with user data
+            # Pre-populate form with user data (except password for security)
             form.first_name.data = user['first_name']
             form.last_name.data = user['last_name']
             form.age.data = user['age']
@@ -170,9 +218,17 @@ def create_app():
                 'address': (form.address.data or '').strip(),
             }
             
+            # Only include password if it's provided (for updates)
+            if form.password.data.strip():
+                user_data['password'] = form.password.data.strip()
+            
             if user_service.update_user(user_id, user_data):
                 flash('User updated successfully', 'success')
-                return redirect(url_for('list_users'))
+                # If user is editing their own profile, redirect to dashboard
+                if session.get('user_id') == user_id:
+                    return redirect(url_for('user_dashboard'))
+                else:
+                    return redirect(url_for('list_users'))
             else:
                 flash('Error updating user. Please try again.', 'danger')
         
@@ -193,6 +249,52 @@ def create_app():
             flash('Error deleting user. Please try again.', 'danger')
         
         return redirect(url_for('list_users'))
+
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        """Login page with authentication"""
+        form = LoginForm()
+        
+        if form.validate_on_submit():
+            username = form.username.data.strip()
+            password = form.password.data.strip()
+            
+            # Authenticate user via User Service
+            auth_result = user_service.authenticate_user(username, password)
+            
+            if auth_result and auth_result.get('success'):
+                user_data = auth_result.get('user')
+                session['user_id'] = user_data['id']
+                session['user_name'] = user_data['first_name']
+                session['user_full_name'] = f"{user_data['first_name']} {user_data['last_name']}"
+                
+                flash(f'Welcome back, {user_data["first_name"]}!', 'success')
+                return redirect(url_for('user_dashboard'))
+            else:
+                flash('Invalid username or password. Please try again.', 'danger')
+        
+        return render_template('login.html', form=form)
+
+    @app.route('/logout')
+    def logout():
+        """Logout user and clear session"""
+        user_name = session.get('user_name', 'User')
+        session.clear()
+        flash(f'Goodbye, {user_name}! You have been logged out.', 'info')
+        return redirect(url_for('index'))
+
+    @app.route('/dashboard')
+    @login_required
+    def user_dashboard():
+        """User dashboard showing personal data"""
+        user_id = session.get('user_id')
+        user_data = user_service.get_user(user_id)
+        
+        if not user_data:
+            flash('Could not load your profile. Please try logging in again.', 'danger')
+            return redirect(url_for('logout'))
+        
+        return render_template('dashboard.html', user=user_data)
 
     return app
 

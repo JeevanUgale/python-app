@@ -1,6 +1,9 @@
 {% extends 'layout.html' %}
 {% block content %}
-  <h1>Saved Users</h1>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Saved Users</h1>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Add New User</a>
+  </div>
   {% if users %}
     <table class="table table-striped">
       <thead>

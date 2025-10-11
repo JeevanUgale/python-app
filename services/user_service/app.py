@@ -11,12 +11,15 @@ load_dotenv(basedir / '.env')
 db = SQLAlchemy()
 
 class User(db.Model):
+    __tablename__ = 'users'
+    
     id = db.Column(db.Integer, primary_key=True)
     first_name = db.Column(db.String(120), nullable=False)
     last_name = db.Column(db.String(120), nullable=False)
     age = db.Column(db.Integer, nullable=False)
     qualification = db.Column(db.String(200))
     address = db.Column(db.Text)
+    password = db.Column(db.String(255), nullable=True)
 
     def to_dict(self):
         return {
@@ -48,7 +51,12 @@ def create_app():
     db.init_app(app)
     
     with app.app_context():
-        db.create_all()
+        try:
+            db.create_all()
+            print("✅ Database connected and tables created successfully")
+        except Exception as e:
+            print(f"⚠️  Database connection failed: {e}")
+            print("🔄 Service will start anyway, but database operations will fail")
 
     @app.route('/health', methods=['GET'])
     def health_check():
@@ -89,6 +97,52 @@ def create_app():
                 'error': str(e)
             }), 500
 
+    @app.route('/api/auth/login', methods=['POST'])
+    def authenticate_user():
+        """Authenticate user with first_name (username) and password"""
+        try:
+            data = request.get_json()
+            if not data:
+                return jsonify({
+                    'success': False,
+                    'error': 'No data provided'
+                }), 400
+            
+            username = data.get('username', '').strip()
+            password = data.get('password', '').strip()
+            
+            if not username or not password:
+                return jsonify({
+                    'success': False,
+                    'error': 'Username and password are required'
+                }), 400
+            
+            user = User.query.filter_by(first_name=username).first()
+            
+            if not user:
+                return jsonify({
+                    'success': False,
+                    'error': 'Invalid username or password'
+                }), 401
+            
+            if user.password != password:
+                return jsonify({
+                    'success': False,
+                    'error': 'Invalid username or password'
+                }), 401
+            
+            return jsonify({
+                'success': True,
+                'user': user.to_dict(),
+                'message': 'Login successful'
+            }), 200
+            
+        except Exception as e:
+            return jsonify({
+                'success': False,
+                'error': str(e)
+            }), 500
+
     @app.route('/api/users', methods=['POST'])
     def create_user():
         """Create a new user"""
@@ -114,7 +168,8 @@ def create_app():
                 last_name=data['last_name'].strip(),
                 age=int(data['age']),
                 qualification=(data.get('qualification') or '').strip(),
-                address=(data.get('address') or '').strip()
+                address=(data.get('address') or '').strip(),
+                password=(data.get('password') or '').strip() if 'password' in data else None
             )
             
             db.session.add(user)
@@ -166,6 +221,8 @@ def create_app():
                 user.qualification = (data['qualification'] or '').strip()
             if 'address' in data:
                 user.address = (data['address'] or '').strip()
+            if 'password' in data and data['password']:
+                user.password = data['password'].strip()
             
             db.session.commit()
             
