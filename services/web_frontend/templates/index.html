@@ -1,6 +1,6 @@
 {% extends 'layout.html' %}
 {% block content %}
-  <h1>Edit User #{{ user.id }}</h1>
+  <h1>Add User</h1>
   <form method="post">
     {{ form.hidden_tag() }}
     <div class="mb-3">
@@ -28,7 +28,11 @@
       {{ form.address(class_='form-control', rows=3) }}
       {% for err in form.address.errors %}<div class="text-danger">{{ err }}</div>{% endfor %}
     </div>
+    <div class="mb-3">
+      {{ form.password.label(class_='form-label') }}
+      {{ form.password(class_='form-control') }}
+      {% for err in form.password.errors %}<div class="text-danger">{{ err }}</div>{% endfor %}
+    </div>
     <button type="submit" class="btn btn-primary">Save</button>
-    <a href="{{ url_for('list_users') }}" class="btn btn-secondary">Cancel</a>
   </form>
 {% endblock %}
