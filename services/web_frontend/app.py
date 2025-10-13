@@ -264,13 +264,15 @@ def create_app():
             
             if auth_result and auth_result.get('success'):
                 user_data = auth_result.get('user')
+                is_admin = auth_result.get('is_admin', False)  # Use the is_admin flag from response
+                
                 session['user_id'] = user_data['id']
                 session['user_name'] = user_data['first_name']
                 session['user_full_name'] = f"{user_data['first_name']} {user_data['last_name']}"
-                session['is_admin'] = user_data['first_name'].lower() == 'flaskuser'
+                session['is_admin'] = is_admin
                 
-                if session['is_admin']:
-                    flash(f'Welcome back, Administrator!', 'success')
+                if is_admin:
+                    flash(f'Welcome back, Database Administrator!', 'success')
                     return redirect(url_for('admin_dashboard'))
                 else:
                     flash(f'Welcome back, {user_data["first_name"]}!', 'success')

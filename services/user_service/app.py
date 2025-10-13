@@ -117,7 +117,7 @@ def create_app():
 
     @app.route('/api/auth/login', methods=['POST'])
     def authenticate_user():
-        """Authenticate user with first_name (username) and password"""
+        """Hybrid authentication: regular users + database admin"""
         try:
             data = request.get_json()
             if not data:
@@ -135,25 +135,41 @@ def create_app():
                     'error': 'Username and password are required'
                 }), 400
             
+            # First, try regular application user authentication
             user = User.query.filter_by(first_name=username).first()
             
-            if not user:
+            if user and user.password == password:
+                # Regular user found and password matches
                 return jsonify({
-                    'success': False,
-                    'error': 'Invalid username or password'
-                }), 401
+                    'success': True,
+                    'user': user.to_dict(),
+                    'is_admin': False,
+                    'message': 'Login successful'
+                }), 200
             
-            if user.password != password:
+            # If not found or password doesn't match, check for database admin
+            if username == 'flaskuser' and password == 'flask_password':
+                # Create virtual admin user object for database admin
+                admin_user = {
+                    'id': 0,
+                    'first_name': 'flaskuser',
+                    'last_name': 'Database Administrator',
+                    'age': 30,
+                    'qualification': 'System Administrator',
+                    'address': 'Database Server'
+                }
                 return jsonify({
-                    'success': False,
-                    'error': 'Invalid username or password'
-                }), 401
+                    'success': True,
+                    'user': admin_user,
+                    'is_admin': True,
+                    'message': 'Database admin login successful'
+                }), 200
             
+            # Authentication failed
             return jsonify({
-                'success': True,
-                'user': user.to_dict(),
-                'message': 'Login successful'
-            }), 200
+                'success': False,
+                'error': 'Invalid username or password'
+            }), 401
             
         except Exception as e:
             return jsonify({
