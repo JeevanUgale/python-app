@@ -18,33 +18,45 @@ This application has been refactored from a monolithic Flask application into a 
 ## Services
 
 ### 1. User Service (Port 5001)
-- **Purpose**: Handles all user data operations
-- **Technology**: Flask REST API + SQLAlchemy
-- **Database**: MySQL
+- **Purpose**: Manages all user-related data and business logic.
+- **Technology**: Flask REST API, SQLAlchemy ORM.
+- **Database**: MySQL.
 - **Endpoints**:
-  - `GET /health` - Health check
-  - `GET /api/users` - List all users
-  - `GET /api/users/{id}` - Get specific user
-  - `POST /api/users` - Create new user
-  - `PUT /api/users/{id}` - Update user
-  - `DELETE /api/users/{id}` - Delete user
+  - `GET /health` – Service health check.
+  - `GET /api/users` – Retrieve all users.
+  - `GET /api/users/{id}` – Retrieve a user by ID.
+  - `POST /api/users` – Create a new user.
+  - `PUT /api/users/{id}` – Update an existing user.
+  - `DELETE /api/users/{id}` – Remove a user.
 
 ### 2. Web Frontend Service (Port 5000)
-- **Purpose**: Provides web interface and user interaction
-- **Technology**: Flask + WTForms + Bootstrap
-- **Communication**: HTTP requests to User Service
+- **Purpose**: Provides the user-facing web interface.
+- **Technology**: Flask, WTForms, Bootstrap.
+- **Interaction**: Communicates with User Service via REST API.
 - **Features**:
-  - User forms (create/edit)
-  - User listing with actions
-  - Flash messages and validation
-  - Responsive UI
+  - User creation and editing forms.
+  - User list and detail views.
+  - Flash messages and input validation.
+  - Responsive design.
 
 ### 3. Shared Components
-- **Configuration management**: Centralized config classes
-- **Utilities**: Health checks, retry mechanisms, API response formats
-- **Common patterns**: Error handling, service communication
+- **Configuration**: Centralized environment and settings management.
+- **Utilities**: Health check scripts, API response helpers, error handling.
+- **Scripts**: Service management and monitoring tools.
+- **Patterns**: Consistent error responses, inter-service HTTP communication.
 
 ## Setup and Installation
+
+### Admin User: to list and modify all users
+
+The `flaskuser` MySQL user acts as the application administrator for database operations. Ensure this user has strong credentials and only the necessary privileges for the `users_db` database.
+
+- **Username**: `flaskuser`
+- **Password**: `flask_password`
+- **Role**: Database admin for application services
+- **Permissions**: Full privileges on `users_db` only
+
+---
 
 ### Database Setup
 

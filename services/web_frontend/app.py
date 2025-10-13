@@ -112,15 +112,21 @@ class UserServiceClient:
     def authenticate_user(self, username, password):
         """Authenticate user with User Service"""
         try:
+            print(f"🔐 Authenticating user: {username}")
             response = requests.post(
                 f"{self.base_url}/api/auth/login",
                 json={'username': username, 'password': password},
                 headers={'Content-Type': 'application/json'},
                 timeout=30
             )
+            print(f"📡 Authentication response status: {response.status_code}")
             if response.status_code == 200:
-                return response.json()
-            return None
+                result = response.json()
+                print(f"✅ Authentication successful: {result}")
+                return result
+            else:
+                print(f"❌ Authentication failed: {response.text}")
+                return None
         except Exception as e:
             print(f"Error authenticating user: {e}")
             return None
@@ -186,18 +192,15 @@ def create_app():
         
         return render_template('index.html', form=form)
 
-    @app.route('/users')
-    def list_users():
-        users = user_service.get_users()
-        delete_form = DeleteForm()
-        return render_template('list.html', users=users, delete_form=delete_form)
-
     @app.route('/users/<int:user_id>/edit', methods=['GET', 'POST'])
     def edit_user(user_id):
         user = user_service.get_user(user_id)
         if not user:
             flash('User not found', 'danger')
-            return redirect(url_for('list_users'))
+            # Check if admin for proper redirect
+            if session.get('is_admin', False):
+                return redirect(url_for('admin_dashboard'))
+            return redirect(url_for('user_dashboard'))
         
         form = EditUserForm()
         
@@ -223,12 +226,15 @@ def create_app():
                 user_data['password'] = form.password.data.strip()
             
             if user_service.update_user(user_id, user_data):
-                flash('User updated successfully', 'success')
+                flash('User updated successfully! ✅', 'success')
+                # Check if current user is admin
+                if session.get('is_admin', False):
+                    return redirect(url_for('admin_dashboard'))
                 # If user is editing their own profile, redirect to dashboard
-                if session.get('user_id') == user_id:
+                elif session.get('user_id') == user_id:
                     return redirect(url_for('user_dashboard'))
                 else:
-                    return redirect(url_for('list_users'))
+                    return redirect(url_for('user_dashboard'))
             else:
                 flash('Error updating user. Please try again.', 'danger')
         
@@ -241,14 +247,20 @@ def create_app():
         # Validate CSRF
         if not form.validate_on_submit():
             flash('Invalid delete request', 'danger')
-            return redirect(url_for('list_users'))
+            # Check if admin for proper redirect
+            if session.get('is_admin', False):
+                return redirect(url_for('admin_dashboard'))
+            return redirect(url_for('user_dashboard'))
         
         if user_service.delete_user(user_id):
-            flash('User deleted successfully', 'success')
+            flash('User deleted successfully! 🗑️', 'success')
         else:
             flash('Error deleting user. Please try again.', 'danger')
         
-        return redirect(url_for('list_users'))
+        # Check if current user is admin and redirect accordingly
+        if session.get('is_admin', False):
+            return redirect(url_for('admin_dashboard'))
+        return redirect(url_for('user_dashboard'))
 
     @app.route('/login', methods=['GET', 'POST'])
     def login():

@@ -34,10 +34,12 @@
       {% for err in form.password.errors %}<div class="text-danger">{{ err }}</div>{% endfor %}
     </div>
     <button type="submit" class="btn btn-primary">Save</button>
-    {% if session.user_id == user.id %}
+    {% if session.is_admin %}
+      <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Back to Admin Dashboard</a>
+    {% elif session.user_id == user.id %}
       <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
     {% else %}
-      <a href="{{ url_for('list_users') }}" class="btn btn-secondary">Cancel</a>
+      <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary">Cancel</a>
     {% endif %}
   </form>
 {% endblock %}
