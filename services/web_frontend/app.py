@@ -267,9 +267,14 @@ def create_app():
                 session['user_id'] = user_data['id']
                 session['user_name'] = user_data['first_name']
                 session['user_full_name'] = f"{user_data['first_name']} {user_data['last_name']}"
+                session['is_admin'] = user_data['first_name'].lower() == 'flaskuser'
                 
-                flash(f'Welcome back, {user_data["first_name"]}!', 'success')
-                return redirect(url_for('user_dashboard'))
+                if session['is_admin']:
+                    flash(f'Welcome back, Administrator!', 'success')
+                    return redirect(url_for('admin_dashboard'))
+                else:
+                    flash(f'Welcome back, {user_data["first_name"]}!', 'success')
+                    return redirect(url_for('user_dashboard'))
             else:
                 flash('Invalid username or password. Please try again.', 'danger')
         
@@ -279,8 +284,13 @@ def create_app():
     def logout():
         """Logout user and clear session"""
         user_name = session.get('user_name', 'User')
+        is_admin = session.get('is_admin', False)
         session.clear()
-        flash(f'Goodbye, {user_name}! You have been logged out.', 'info')
+        
+        if is_admin:
+            flash(f'Goodbye, Administrator! You have been logged out.', 'info')
+        else:
+            flash(f'Goodbye, {user_name}! You have been logged out.', 'info')
         return redirect(url_for('index'))
 
     @app.route('/dashboard')
@@ -295,6 +305,18 @@ def create_app():
             return redirect(url_for('logout'))
         
         return render_template('dashboard.html', user=user_data)
+
+    @app.route('/admin')
+    @login_required
+    def admin_dashboard():
+        """Admin dashboard showing all users"""
+        if not session.get('is_admin'):
+            flash('Access denied. Admin privileges required.', 'danger')
+            return redirect(url_for('user_dashboard'))
+        
+        users = user_service.get_users()
+        delete_form = DeleteForm()
+        return render_template('admin_dashboard.html', users=users, delete_form=delete_form)
 
     return app
 
