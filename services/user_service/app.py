@@ -54,24 +54,6 @@ def create_app():
         try:
             db.create_all()
             print("✅ Database connected and tables created successfully")
-            
-            # Check if flaskuser admin account exists, create if not
-            admin_user = User.query.filter_by(first_name='flaskuser').first()
-            if not admin_user:
-                admin_user = User(
-                    first_name='flaskuser',
-                    last_name='Administrator',
-                    age=30,
-                    qualification='Database Administrator',
-                    address='System Account',
-                    password='flask_password'
-                )
-                db.session.add(admin_user)
-                db.session.commit()
-                print("✅ Admin user 'flaskuser' created successfully")
-            else:
-                print("✅ Admin user 'flaskuser' already exists")
-                
         except Exception as e:
             print(f"⚠️  Database connection failed: {e}")
             print("🔄 Service will start anyway, but database operations will fail")
