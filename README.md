@@ -155,7 +155,6 @@ sudo systemctl start web-frontend
 ### Health Checks
 ```bash
 ./scripts/health_check.sh
-./scripts/smoke_test.py
 ```
 
 ### Individual Service URLs
