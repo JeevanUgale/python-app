@@ -45,6 +45,46 @@ class BaseConfig:
     @property
     def DEBUG(self):
         return os.environ.get('DEBUG', 'False').lower() == 'true'
+    
+    @property
+    def ENVIRONMENT(self):
+        return os.environ.get('ENVIRONMENT', 'development')
+    
+    @property
+    def LOG_LEVEL(self):
+        return os.environ.get('LOG_LEVEL', 'INFO')
+
+
+class AuthServiceConfig(BaseConfig):
+    """Configuration specific to Auth Service"""
+    
+    @property
+    def PORT(self):
+        return int(os.environ.get('AUTH_SERVICE_PORT', 5001))
+    
+    @property
+    def HOST(self):
+        return os.environ.get('HOST', '0.0.0.0')
+    
+    @property
+    def JWT_SECRET(self):
+        return os.environ.get('JWT_SECRET') or 'dev-jwt-secret-change-in-production'
+    
+    @property
+    def JWT_ALGORITHM(self):
+        return 'HS256'
+    
+    @property
+    def TOKEN_EXPIRY(self):
+        return int(os.environ.get('TOKEN_EXPIRY', 3600))
+    
+    @property
+    def ADMIN_USERNAME(self):
+        return os.environ.get('ADMIN_USERNAME', 'admin')
+    
+    @property
+    def ADMIN_PASSWORD_HASH(self):
+        return os.environ.get('ADMIN_PASSWORD_HASH') or 'dev-admin-password-hash'
 
 
 class UserServiceConfig(BaseConfig):
@@ -52,11 +92,39 @@ class UserServiceConfig(BaseConfig):
     
     @property
     def PORT(self):
-        return int(os.environ.get('USER_SERVICE_PORT', 5001))
+        return int(os.environ.get('USER_SERVICE_PORT', 5002))
     
     @property
     def HOST(self):
         return os.environ.get('HOST', '0.0.0.0')
+    
+    @property
+    def AUTH_SERVICE_URL(self):
+        return os.environ.get('AUTH_SERVICE_URL', 'http://localhost:5001')
+    
+    @property
+    def REQUEST_TIMEOUT(self):
+        return int(os.environ.get('REQUEST_TIMEOUT', 10))
+
+
+class AdminServiceConfig(BaseConfig):
+    """Configuration specific to Admin Service"""
+    
+    @property
+    def PORT(self):
+        return int(os.environ.get('ADMIN_SERVICE_PORT', 5003))
+    
+    @property
+    def HOST(self):
+        return os.environ.get('HOST', '0.0.0.0')
+    
+    @property
+    def AUTH_SERVICE_URL(self):
+        return os.environ.get('AUTH_SERVICE_URL', 'http://localhost:5001')
+    
+    @property
+    def REQUEST_TIMEOUT(self):
+        return int(os.environ.get('REQUEST_TIMEOUT', 10))
 
 
 class WebFrontendConfig(BaseConfig):
@@ -71,5 +139,17 @@ class WebFrontendConfig(BaseConfig):
         return os.environ.get('HOST', '0.0.0.0')
     
     @property
+    def AUTH_SERVICE_URL(self):
+        return os.environ.get('AUTH_SERVICE_URL', 'http://localhost:5001')
+    
+    @property
     def USER_SERVICE_URL(self):
-        return os.environ.get('USER_SERVICE_URL', 'http://localhost:5001')
+        return os.environ.get('USER_SERVICE_URL', 'http://localhost:5002')
+    
+    @property
+    def ADMIN_SERVICE_URL(self):
+        return os.environ.get('ADMIN_SERVICE_URL', 'http://localhost:5003')
+    
+    @property
+    def REQUEST_TIMEOUT(self):
+        return int(os.environ.get('REQUEST_TIMEOUT', 10))
