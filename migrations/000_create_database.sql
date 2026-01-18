@@ -6,10 +6,12 @@ CREATE DATABASE IF NOT EXISTS users_db
 CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
+-- Create the application user (if not exists)
+-- Note: MySQL 5.7+ supports CREATE USER IF NOT EXISTS
+CREATE USER IF NOT EXISTS 'flaskuser'@'%' IDENTIFIED BY 'flaskpass';
+
 -- Grant permissions to the application user
--- (Adjust username/password as needed)
-GRANT ALL PRIVILEGES ON users_db.* TO 'flaskuser'@'%' IDENTIFIED BY 'flaskpass';
-GRANT ALL PRIVILEGES ON users_db.* TO 'flaskuser'@'localhost' IDENTIFIED BY 'flaskpass';
+GRANT ALL PRIVILEGES ON users_db.* TO 'flaskuser'@'%';
 
 -- Flush privileges to apply changes
 FLUSH PRIVILEGES;
