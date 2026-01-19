@@ -35,7 +35,7 @@ class UserForm(FlaskForm):
     age = IntegerField('Age', validators=[DataRequired(), NumberRange(min=1, max=150)])
     qualification = StringField('Qualification')
     address = TextAreaField('Address')
-    password = PasswordField('Password (Optional)', validators=[Optional(), Length(min=6, message='Password must be at least 6 characters long')])
+    password = PasswordField('Password', validators=[Optional(), Length(min=6, message='Password must be at least 6 characters long')])
     submit = SubmitField('Save')
 
 
