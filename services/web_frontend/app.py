@@ -209,7 +209,7 @@ def create_app():
             form.qualification.data = user.get('qualification', '')
             form.address.data = user.get('address', '')
         
-        return render_template('edit.html', form=form, user_id=user_id)
+        return render_template('edit.html', form=form, user=user, user_id=user_id)
 
     @app.route('/admin/dashboard', methods=['GET'])
     @admin_required
