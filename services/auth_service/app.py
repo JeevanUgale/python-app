@@ -84,6 +84,17 @@ def create_app():
         try:
             db.create_all()
             print("✅ Auth Service: Database connected and tables created")
+            
+            # Create default admin user if it doesn't exist
+            admin_username = os.environ.get('ADMIN_USERNAME', 'admin')
+            admin_password_hash = os.environ.get('ADMIN_PASSWORD_HASH')
+            
+            if admin_password_hash and not AdminUser.query.filter_by(username=admin_username).first():
+                admin_user = AdminUser(username=admin_username, password_hash=admin_password_hash)
+                db.session.add(admin_user)
+                db.session.commit()
+                print(f"✅ Created default admin user: {admin_username}")
+            
         except Exception as e:
             print(f"⚠️  Auth Service: Database connection failed: {e}")
 

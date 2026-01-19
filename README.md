@@ -17,38 +17,54 @@ A microservices-based Flask application with authentication, user management, an
 
 ## Setup Instructions
 
-### 1. Clone and Setup Environment
+### 1. Setup Database
+
+**Important:** Run migrations in this exact order:
+
+```bash
+git clone <repository-url>
+cd pythhon-app
+
+# 1. Create the database (requires MySQL root access)
+mysql -u root -p < create_DB_Dump.sql
+
+# 2. Create tables in order
+mysql -u flaskuser -p users_db < db_dump.sql
+```
+
+### 2. Clone and Setup Environment
 
 ```bash
 git clone <repository-url>
 cd python-app
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 2. Configure Environment
+### 3. Configure Environment
 
 ```bash
 cp .env.example .env
 # Edit .env with your database credentials and secrets
 ```
 
-### 3. Setup Database
-
-**Important:** Run migrations in this exact order:
+### 4. Verify installations
 
 ```bash
-# 1. Create the database (requires MySQL root access)
-mysql -u root -p < migrations/000_create_database.sql
+python -c "import sqlalchemy, flask_sqlalchemy, jwt, flask, pymysql; print('All dependencies: OK')"
 
-# 2. Create tables in order
-mysql -u flaskuser -p users_db < migrations/000_create_users.sql
-mysql -u flaskuser -p users_db < migrations/001_create_admin_users.sql
-mysql -u flaskuser -p users_db < migrations/002_create_audit_logs.sql
+# Test each service individually
+cd services/auth_service && python -c "from app import db, AdminUser; print('Auth: OK')"
+cd ../user_service && python -c "from app import db, User; print('User: OK')"
+cd ../admin_service && python -c "from app import db, AuditLog; print('Admin: OK')"
+cd ../web_frontend && python -c "from app import create_app; app = create_app(); print('Web: OK')"
 ```
 
-### 4. Run Services
+
+
+### 5. Run Services
 
 Start each service in separate terminals:
 
@@ -66,7 +82,7 @@ cd services/admin_service && python app.py
 cd services/web_frontend && python app.py
 ```
 
-### 5. Access Application
+### 6. Access Application
 
 - **Web App**: http://localhost:5000
 - **Admin Login**: Use admin/admin (configured in .env)
