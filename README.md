@@ -32,55 +32,29 @@ mysql -u root -p < create_DB_Dump.sql
 mysql -u flaskuser -p users_db < db_dump.sql
 ```
 
-### 2. Clone and Setup Environment
+### 2. Clone and configure environments
 
 ```bash
 git clone <repository-url>
 cd python-app
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-pip install --upgrade pip
-pip install -r requirements.txt
-```
-
-### 3. Configure Environment
-
-```bash
 cp .env.example .env
+
 # Edit .env with your database credentials and secrets
 ```
+**Edit the service URL's with the docker service name (admin, user, auth, web) -- mentioned in the docker-compose.yml**
 
-### 4. Verify installations
-
-```bash
-python -c "import sqlalchemy, flask_sqlalchemy, jwt, flask, pymysql; print('All dependencies: OK')"
-
-# Test each service individually
-cd services/auth_service && python -c "from app import db, AdminUser; print('Auth: OK')"
-cd ../user_service && python -c "from app import db, User; print('User: OK')"
-cd ../admin_service && python -c "from app import db, AuditLog; print('Admin: OK')"
-cd ../web_frontend && python -c "from app import create_app; app = create_app(); print('Web: OK')"
-```
-
-
-
-### 5. Run Services
-
-Start each service in separate terminals:
+### 3. Run docker compose file
 
 ```bash
-# Terminal 1: Auth Service
-cd services/auth_service && python app.py
-
-# Terminal 2: User Service
-cd services/user_service && python app.py
-
-# Terminal 3: Admin Service
-cd services/admin_service && python app.py
-
-# Terminal 4: Web Frontend
-cd services/web_frontend && python app.py
+docker compose up -d
 ```
+
+### 4. Verify docker containers status
+
+```bash
+docker compose ps
+```
+
 
 ### 6. Access Application
 
