@@ -44,3 +44,51 @@ jobs:
                 docker build -f services/admin_service/Dockerfile -t jeevanugale/admin_service:${{ github.sha }} .
                 docker images
                 docker push jeevanugale/admin_service:${{ github.sha }}
+
+    Trivy-Scan:
+        runs-on: ubuntu-latest
+        needs: Docker-Build-Push
+        steps:
+            - name: web Docker Image Scan
+              uses: aquasecurity/trivy-action@0.33.1
+              with:
+                scan-type: image
+                scan-ref: jeevanugale/web_frontend:${{ github.sha }}
+                format: table
+                exit-code: '0'
+                vuln-type: os,library
+                severity: CRITICAL,HIGH,MEDIUM
+                output: trivy-web_frontend-report.txt
+
+            - name: auth Docker Image Scan
+              uses: aquasecurity/trivy-action@0.33.1
+              with:
+                scan-type: image
+                scan-ref: jeevanugale/auth_service:${{ github.sha }}
+                format: table
+                exit-code: '0'
+                vuln-type: os,library
+                severity: CRITICAL,HIGH,MEDIUM
+                output: trivy-auth_service-report.txt
+
+            - name: user Docker Image Scan
+              uses: aquasecurity/trivy-action@0.33.1
+              with:
+                scan-type: image
+                scan-ref: jeevanugale/user_service:${{ github.sha }}
+                format: table
+                exit-code: '0'
+                vuln-type: os,library
+                severity: CRITICAL,HIGH,MEDIUM
+                output: trivy-user_service-report.txt
+
+            - name: admin Docker Image Scan
+              uses: aquasecurity/trivy-action@0.33.1
+              with:
+                scan-type: image
+                scan-ref: jeevanugale/admin_service:${{ github.sha }}
+                format: table
+                exit-code: '0'
+                vuln-type: os,library
+                severity: CRITICAL,HIGH,MEDIUM
+                output: trivy-admin_service-report.txt
