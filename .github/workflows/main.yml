@@ -92,3 +92,17 @@ jobs:
                 vuln-type: os,library
                 severity: CRITICAL,HIGH,MEDIUM
                 output: trivy-admin_service-report.txt
+
+    Upload-Reports:
+        runs-on: ubuntu-latest
+        needs: Trivy-Scan
+        steps:
+            - name: Upload Trivy web_frontend Report as Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: trivy-web_frontend-report.txt, trivy-auth_service-report.txt, trivy-user_service-report.txt, trivy-admin_service-report.txt
+                path: |
+                  trivy-web_frontend-report.txt
+                  trivy-auth_service-report.txt
+                  trivy-user_service-report.txt
+                  trivy-admin_service-report.txt
