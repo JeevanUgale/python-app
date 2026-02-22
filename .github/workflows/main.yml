@@ -1,0 +1,41 @@
+name: CI pipeline for python application
+on:
+    push:
+        branches:
+            - testing
+
+permissions:
+    contents: read
+
+jobs:
+    Build-docker-images:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Docker login
+              uses: docker/login-action@v3
+              with:
+                username: ${{ secrets.DOCKER_USERNAME }}
+                password: ${{ secrets.DOCKER_PASSWORD }}
+
+            - name: Build web_frontend image
+              run: |
+                docker build -f services/web_frontend/Dockerfile -t jeevanugale/web_frontend:${{ github.sha }} .
+                docker images
+
+            - name: Build auth_service image
+              run: |
+                docker build -f services/auth_service/Dockerfile -t jeevanugale/auth_service:${{ github.sha }} .
+                docker images
+
+            - name: Build user_service image
+              run: |
+                docker build -f services/user_service/Dockerfile -t jeevanugale/user_service:${{ github.sha }} .
+                docker images
+
+            - name: Build admin_service image
+              run: |
+                docker build -f services/admin_service/Dockerfile -t jeevanugale/admin_service:${{ github.sha }} .
+                docker images
