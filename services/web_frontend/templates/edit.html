@@ -37,9 +37,9 @@
     {% if session.is_admin %}
       <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">Back to Admin Dashboard</a>
     {% elif session.user_id == user.id %}
-      <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
     {% else %}
-      <a href="{{ url_for('user_dashboard') }}" class="btn btn-secondary">Cancel</a>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">Cancel</a>
     {% endif %}
   </form>
 {% endblock %}

@@ -1,278 +1,121 @@
-# Python Microservices Application
+# 4-Service User Management Application
 
-This application has been refactored from a monolithic Flask application into a microservices architecture. The application manages user data with CRUD operations, split across multiple independent services.
+A microservices-based Flask application with authentication, user management, and admin functionality.
 
-## Architecture Overview
+## Architecture
 
-```
-┌─────────────────┐    HTTP API    ┌─────────────────┐
-│  Web Frontend   │ ──────────────▶ │  User Service   │
-│    (Port 5000)  │                 │   (Port 5001)   │
-│                 │                 │                 │
-│ - Templates     │                 │ - REST API      │
-│ - Forms         │                 │ - Database      │
-│ - User Interface│                 │ - User CRUD     │
-└─────────────────┘                 └─────────────────┘
-```
+- **Web Frontend** (Port 5000) - User interface and service orchestration
+- **Auth Service** (Port 5001) - JWT-based authentication for users and admins
+- **User Service** (Port 5002) - User CRUD operations
+- **Admin Service** (Port 5003) - Admin dashboard and audit logging
 
-## Services
+## Prerequisites
 
-### 1. User Service (Port 5001)
-- **Purpose**: Manages all user-related data and business logic.
-- **Technology**: Flask REST API, SQLAlchemy ORM.
-- **Database**: MySQL.
-- **Endpoints**:
-  - `GET /health` – Service health check.
-  - `GET /api/users` – Retrieve all users.
-  - `GET /api/users/{id}` – Retrieve a user by ID.
-  - `POST /api/users` – Create a new user.
-  - `PUT /api/users/{id}` – Update an existing user.
-  - `DELETE /api/users/{id}` – Remove a user.
+- Python 3.11+
+- MySQL 8.0+
+- Git
 
-### 2. Web Frontend Service (Port 5000)
-- **Purpose**: Provides the user-facing web interface.
-- **Technology**: Flask, WTForms, Bootstrap.
-- **Interaction**: Communicates with User Service via REST API.
-- **Features**:
-  - User creation and editing forms.
-  - User list and detail views.
-  - Flash messages and input validation.
-  - Responsive design.
+## Setup Instructions
 
-### 3. Shared Components
-- **Configuration**: Centralized environment and settings management.
-- **Utilities**: Health check scripts, API response helpers, error handling.
-- **Scripts**: Service management and monitoring tools.
-- **Patterns**: Consistent error responses, inter-service HTTP communication.
+### 1. Setup Database
 
-## Setup and Installation
+**Important:** Run migrations in this exact order:
 
-### Admin User: to list and modify all users
-
-The `flaskuser` MySQL user acts as the application administrator for database operations. Ensure this user has strong credentials and only the necessary privileges for the `users_db` database.
-
-- **Username**: `flaskuser`
-- **Password**: `flask_password`
-- **Role**: Database admin for application services
-- **Permissions**: Full privileges on `users_db` only
-
----
-
-### Database Setup
-
-```sql
-CREATE DATABASE users_db;
-CREATE USER 'flaskuser'@'%' IDENTIFIED BY 'flask_password';
-GRANT ALL PRIVILEGES ON users_db.* TO 'flaskuser'@'%';
-FLUSH PRIVILEGES;
-```
-
-### Prerequisites (Install required packages)
-- Python 3.8+
-- MySQL Database/mysql-client
-- pip package manager
-- Systemd for service management
-
-````bash
-sudo apt udpdate
-sudo apt install python3-venv python3-pip mysql-client -y
-````
-
-### 1. Environment Setup
 ```bash
-# Clone or navigate to the project directory
-cd /path/to/python-app
+git clone <repository-url>
+cd pythhon-app
 
-# Copy environment configuration
-cp .env.example .env
+# 1. Create the database (requires MySQL root access)
+mysql -u root -p < create_DB_Dump.sql
 
-# Edit .env with your database credentials and settings
-vim .env
-```
-## Configuration
-
-### Environment Variables (.env)
-```bash
-# Database Configuration
-DB_USER=flaskuser
-DB_PASS=flask_password
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_NAME=users_db
-
-# Application Configuration
-SECRET_KEY=your-secret-key-here
-DEBUG=False
-
-# Service Ports
-USER_SERVICE_PORT=5001
-WEB_FRONTEND_PORT=5000
-
-# Service URLs
-USER_SERVICE_URL=http://localhost:5001
-
-# General Configuration
-HOST=0.0.0.0
+# 2. Create tables in order
+mysql -u flaskuser -p users_db < db_dump.sql
 ```
 
-### 2. Install Dependencies
+### 2. Clone and Setup Environment
+
 ```bash
-# Create Virtual Python Environment
-python3 -m venv .venv
-
-# Set Virtual Environment
-source .venv/bin/activate
-
-# Install all dependencies
+git clone <repository-url>
+cd python-app
+python -m venv .venv
+source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+pip install --upgrade pip
 pip install -r requirements.txt
-
-# Or install service-specific dependencies
-pip install -r services/user_service/requirements.txt
-pip install -r services/web_frontend/requirements.txt
 ```
 
-## Running the Application
+### 3. Configure Environment
 
-### Start Services Individually
-
-**Terminal 1 - User Service:**
 ```bash
-sudo cp deployment/user-service.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable user-service
-sudo systemctl start user-service
+cp .env.example .env
+# Edit .env with your database credentials and secrets
 ```
 
-**Terminal 2 - Web Frontend:**
+### 4. Verify installations
+
 ```bash
-sudo cp deployment/web-frontend.service /etc/systemd/system/
-sudo systemctl enbale web-frontend
-sudo systemctl start web-frontend
+python -c "import sqlalchemy, flask_sqlalchemy, jwt, flask, pymysql; print('All dependencies: OK')"
+
+# Test each service individually
+cd services/auth_service && python -c "from app import db, AdminUser; print('Auth: OK')"
+cd ../user_service && python -c "from app import db, User; print('User: OK')"
+cd ../admin_service && python -c "from app import db, AuditLog; print('Admin: OK')"
+cd ../web_frontend && python -c "from app import create_app; app = create_app(); print('Web: OK')"
 ```
 
-## Service Management
 
-### Health Checks
+
+### 5. Run Services
+
+Start each service in separate terminals:
+
 ```bash
-./scripts/health_check.sh
+# Terminal 1: Auth Service
+cd services/auth_service && python app.py
+
+# Terminal 2: User Service
+cd services/user_service && python app.py
+
+# Terminal 3: Admin Service
+cd services/admin_service && python app.py
+
+# Terminal 4: Web Frontend
+cd services/web_frontend && python app.py
 ```
 
-### Individual Service URLs
-- **Web Frontend**: http://localhost:5000
-- **User Service API**: http://localhost:5001
-- **Health Checks**: 
-  - http://localhost:5000/health
-  - http://localhost:5001/health
+### 6. Access Application
 
+- **Web App**: http://localhost:5000
+- **Admin Login**: Use admin/admin (configured in .env)
 
-# View logs
-````bash
-sudo journalctl -u user-service -f
-sudo journalctl -u web-frontend -f
-````
+## API Endpoints
 
-### 6. Nginx Configuration (Optional)
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
+### Auth Service (Port 5001)
+- `POST /api/auth/login` - User/Admin login
+- `POST /api/auth/verify` - Verify JWT token
 
-    location / {
-        proxy_pass http://localhost:5000;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
+### User Service (Port 5002)
+- `GET /api/users` - List users (JWT required)
+- `POST /api/users` - Create user
+- `GET /api/users/{id}` - Get user (JWT required)
+- `PUT /api/users/{id}` - Update user (JWT required)
+- `DELETE /api/users/{id}` - Delete user (JWT required)
 
-    location /api/ {
-        proxy_pass http://localhost:5001;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-    }
-}
-```
+### Admin Service (Port 5003)
+- `GET /api/admin/dashboard` - Admin dashboard (admin JWT required)
+- `GET /api/admin/users` - List all users (admin JWT required)
+- `PUT /api/admin/users/{id}` - Update user (admin JWT required)
+- `DELETE /api/admin/users/{id}` - Delete user (admin JWT required)
+- `GET /api/admin/audit-logs` - View audit logs (admin JWT required)
 
-## Monitoring and Maintenance
+## Development
 
-### Log Files
-- Application logs: Check service outputs via `journalctl`
-- Nginx logs: `/var/log/nginx/access.log` and `/var/log/nginx/error.log`
-- System logs: `/var/log/syslog`
+- All services auto-create database tables on startup
+- JWT tokens expire after 3600 seconds (1 hour)
+- Circuit breaker pattern protects against service failures
+- Comprehensive audit logging for admin actions
 
-### Health Monitoring
-```bash
-# Check service health
-curl http://localhost:5000/health
-curl http://localhost:5001/health
+## Troubleshooting
 
-# Monitor system resources
-htop
-df -h
-free -h
-```
-
-### Backup Strategy
-- Database: Regular MySQL dumps
-- Application: Code in version control
-- Configuration: Backup `.env` and service files
-
-## Migration from Monolithic App
-
-The original monolithic application (`python_app/`) has been decomposed into:
-
-1. **Database logic** → User Service
-2. **Web interface** → Web Frontend Service  
-3. **Shared configuration** → Shared components
-
-### Key Changes:
-- Database operations now happen via REST API calls
-- Form handling moved to frontend service
-- Database models isolated in User Service
-- Configuration centralized in shared components
-- Inter-service communication via HTTP
-
-### Benefits:
-- **Scalability**: Services can be scaled independently
-- **Maintainability**: Clear separation of concerns
-- **Deployment**: Services can be deployed separately
-- **Technology diversity**: Different services can use different tech stacks
-- **Fault isolation**: Failure in one service doesn't affect others
-
-## API Documentation
-
-### User Service REST API
-
-#### GET /api/users
-Returns list of all users.
-```json
-{
-  "success": true,
-  "users": [
-    {
-      "id": 1,
-      "first_name": "John",
-      "last_name": "Doe",
-      "age": 30,
-      "qualification": "Engineer",
-      "address": "123 Main St"
-    }
-  ]
-}
-```
-
-#### POST /api/users
-Create a new user.
-```json
-{
-  "first_name": "John",
-  "last_name": "Doe",
-  "age": 30,
-  "qualification": "Engineer",
-  "address": "123 Main St"
-}
-```
-
-#### PUT /api/users/{id}
-Update existing user (partial updates supported).
-
-#### DELETE /api/users/{id}
-Delete a user by ID.
+- **Database connection errors**: Check MySQL is running and credentials in .env
+- **Service startup failures**: Ensure all dependencies are installed
+- **Authentication issues**: Verify JWT_SECRET in all services matches

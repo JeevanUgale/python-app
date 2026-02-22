@@ -1,6 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+import jwt
 import os
+from functools import wraps
 from dotenv import load_dotenv
 from pathlib import Path
 
@@ -48,21 +50,58 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = f"mysql+pymysql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
+    # JWT Configuration
+    JWT_SECRET = os.environ.get('JWT_SECRET') or 'dev-jwt-secret-change-in-production'
+    JWT_ALGORITHM = 'HS256'
+    
     db.init_app(app)
     
     with app.app_context():
         try:
             db.create_all()
-            print("✅ Database connected and tables created successfully")
+            print("✅ User Service: Database connected and tables created")
         except Exception as e:
-            print(f"⚠️  Database connection failed: {e}")
-            print("🔄 Service will start anyway, but database operations will fail")
+            print(f"⚠️  User Service: Database connection failed: {e}")
+
+    def verify_token(f):
+        """Decorator to verify JWT token"""
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            token = request.headers.get('Authorization', '').replace('Bearer ', '')
+            
+            if not token:
+                return jsonify({
+                    'success': False,
+                    'error': 'Missing authorization token',
+                    'error_code': 'USER_401'
+                }), 401
+            
+            try:
+                payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+                request.user_id = payload.get('user_id')
+                request.username = payload.get('username')
+                return f(*args, **kwargs)
+            except jwt.ExpiredSignatureError:
+                return jsonify({
+                    'success': False,
+                    'error': 'Token has expired',
+                    'error_code': 'USER_401'
+                }), 401
+            except jwt.InvalidTokenError:
+                return jsonify({
+                    'success': False,
+                    'error': 'Invalid token',
+                    'error_code': 'USER_401'
+                }), 401
+        
+        return decorated_function
 
     @app.route('/health', methods=['GET'])
     def health_check():
         return jsonify({'status': 'healthy', 'service': 'user-service'}), 200
 
     @app.route('/api/users', methods=['GET'])
+    @verify_token
     def get_users():
         """Get all users"""
         try:
@@ -74,10 +113,12 @@ def create_app():
         except Exception as e:
             return jsonify({
                 'success': False,
-                'error': str(e)
+                'error': str(e),
+                'error_code': 'USER_500'
             }), 500
 
     @app.route('/api/users/<int:user_id>', methods=['GET'])
+    @verify_token
     def get_user(user_id):
         """Get a specific user by ID"""
         try:
@@ -85,7 +126,8 @@ def create_app():
             if not user:
                 return jsonify({
                     'success': False,
-                    'error': 'User not found'
+                    'error': 'User not found',
+                    'error_code': 'USER_404'
                 }), 404
             return jsonify({
                 'success': True,
@@ -94,70 +136,21 @@ def create_app():
         except Exception as e:
             return jsonify({
                 'success': False,
-                'error': str(e)
+                'error': str(e),
+                'error_code': 'USER_500'
             }), 500
 
     @app.route('/api/auth/login', methods=['POST'])
     def authenticate_user():
-        """Hybrid authentication: regular users + database admin"""
-        try:
-            data = request.get_json()
-            if not data:
-                return jsonify({
-                    'success': False,
-                    'error': 'No data provided'
-                }), 400
-            
-            username = data.get('username', '').strip()
-            password = data.get('password', '').strip()
-            
-            if not username or not password:
-                return jsonify({
-                    'success': False,
-                    'error': 'Username and password are required'
-                }), 400
-            
-            # First, try regular application user authentication
-            user = User.query.filter_by(first_name=username).first()
-            
-            if user and user.password == password:
-                # Regular user found and password matches
-                return jsonify({
-                    'success': True,
-                    'user': user.to_dict(),
-                    'is_admin': False,
-                    'message': 'Login successful'
-                }), 200
-            
-            # If not found or password doesn't match, check for database admin
-            if username == 'flaskuser' and password == 'flask_password':
-                # Create virtual admin user object for database admin
-                admin_user = {
-                    'id': 0,
-                    'first_name': 'flaskuser',
-                    'last_name': 'Database Administrator',
-                    'age': 30,
-                    'qualification': 'System Administrator',
-                    'address': 'Database Server'
-                }
-                return jsonify({
-                    'success': True,
-                    'user': admin_user,
-                    'is_admin': True,
-                    'message': 'Database admin login successful'
-                }), 200
-            
-            # Authentication failed
-            return jsonify({
-                'success': False,
-                'error': 'Invalid username or password'
-            }), 401
-            
-        except Exception as e:
-            return jsonify({
-                'success': False,
-                'error': str(e)
-            }), 500
+        """
+        DEPRECATED: Use Auth Service for authentication
+        This endpoint is kept for backward compatibility during migration
+        """
+        return jsonify({
+            'success': False,
+            'error': 'Please use Auth Service (port 5001) for login',
+            'error_code': 'USER_DEPRECATED'
+        }), 410
 
     @app.route('/api/users', methods=['POST'])
     def create_user():
@@ -167,7 +160,8 @@ def create_app():
             if not data:
                 return jsonify({
                     'success': False,
-                    'error': 'No data provided'
+                    'error': 'No data provided',
+                    'error_code': 'USER_400'
                 }), 400
             
             # Validate required fields
@@ -176,7 +170,8 @@ def create_app():
                 if field not in data or not data[field]:
                     return jsonify({
                         'success': False,
-                        'error': f'Missing required field: {field}'
+                        'error': f'Missing required field: {field}',
+                        'error_code': 'USER_400'
                     }), 400
             
             user = User(
@@ -199,16 +194,19 @@ def create_app():
         except ValueError as e:
             return jsonify({
                 'success': False,
-                'error': 'Invalid data type for age'
+                'error': 'Invalid data type for age',
+                'error_code': 'USER_400'
             }), 400
         except Exception as e:
             db.session.rollback()
             return jsonify({
                 'success': False,
-                'error': str(e)
+                'error': str(e),
+                'error_code': 'USER_500'
             }), 500
 
     @app.route('/api/users/<int:user_id>', methods=['PUT'])
+    @verify_token
     def update_user(user_id):
         """Update an existing user"""
         try:
@@ -216,14 +214,16 @@ def create_app():
             if not user:
                 return jsonify({
                     'success': False,
-                    'error': 'User not found'
+                    'error': 'User not found',
+                    'error_code': 'USER_404'
                 }), 404
             
             data = request.get_json()
             if not data:
                 return jsonify({
                     'success': False,
-                    'error': 'No data provided'
+                    'error': 'No data provided',
+                    'error_code': 'USER_400'
                 }), 400
             
             # Update fields if provided
@@ -250,16 +250,19 @@ def create_app():
         except ValueError as e:
             return jsonify({
                 'success': False,
-                'error': 'Invalid data type for age'
+                'error': 'Invalid data type for age',
+                'error_code': 'USER_400'
             }), 400
         except Exception as e:
             db.session.rollback()
             return jsonify({
                 'success': False,
-                'error': str(e)
+                'error': str(e),
+                'error_code': 'USER_500'
             }), 500
 
     @app.route('/api/users/<int:user_id>', methods=['DELETE'])
+    @verify_token
     def delete_user(user_id):
         """Delete a user"""
         try:
@@ -267,7 +270,8 @@ def create_app():
             if not user:
                 return jsonify({
                     'success': False,
-                    'error': 'User not found'
+                    'error': 'User not found',
+                    'error_code': 'USER_404'
                 }), 404
             
             db.session.delete(user)
@@ -281,7 +285,8 @@ def create_app():
             db.session.rollback()
             return jsonify({
                 'success': False,
-                'error': str(e)
+                'error': str(e),
+                'error_code': 'USER_500'
             }), 500
 
     return app
@@ -289,10 +294,10 @@ def create_app():
 
 def run():
     app = create_app()
-    port = int(os.environ.get('USER_SERVICE_PORT', 5001))
+    port = int(os.environ.get('USER_SERVICE_PORT', 5002))
     host = os.environ.get('HOST', '0.0.0.0')
     debug = os.environ.get('DEBUG', 'False').lower() == 'true'
-    print(f"Starting User Service on {host}:{port}")
+    print(f"👥 Starting User Service on {host}:{port}")
     app.run(host=host, port=port, debug=debug)
 
 
