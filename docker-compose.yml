@@ -1,0 +1,36 @@
+services:
+  admin:
+    image: jeevanugale/admin_service:latest
+    container_name: admin
+    ports:
+      - "5003:5003"
+    env_file:
+      - .env
+
+  user:
+    image: jeevanugale/user_service:latest
+    container_name: user
+    ports:
+      - "5002:5002"
+    env_file:
+      - .env
+
+  auth:
+    image: jeevanugale/auth_service:latest
+    container_name: auth
+    ports:
+      - "5001:5001"
+    env_file:
+      - .env
+
+  web:
+    image: jeevanugale/web_frontend:latest
+    container_name: web
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    depends_on:
+      - admin
+      - user
+      - auth

@@ -1,6 +1,7 @@
-# User Service Requirements
 Flask==2.3.3
 Flask-SQLAlchemy==3.1.1
 SQLAlchemy==2.0.45
 PyMySQL==1.1.0
+PyJWT==2.8.0
 python-dotenv==1.0.0
+Werkzeug==2.3.7
