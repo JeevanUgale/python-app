@@ -10,6 +10,7 @@ permissions:
 jobs:
     Build-docker-images:
         runs-on: ubuntu-latest
+        environment: development
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
