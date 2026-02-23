@@ -8,6 +8,17 @@ pipeline {
                 git url: 'https://github.com/jeevanugale/python-app.git', branch: 'bugfix-01'
             }
         }
+        stage('Resolve Git SHA') {
+            steps {
+                script {
+                    env.GIT_SHA = sh(
+                        script: 'git rev-parse --short HEAD',
+                        returnStdout: true
+                    ).trim()
+                }
+                echo "Deploying image tag: ${env.GIT_SHA}"
+            }
+        }
         stage('Copy .env.example') {
             steps {
                 sh 'cp .env.example .env'
@@ -21,7 +32,7 @@ pipeline {
                     string(credentialsId: 'db-pass', variable: 'DB_PASS'),
                     string(credentialsId: 'mysql-root-password', variable: 'MYSQL_ROOT_PASSWORD'),
                     string(credentialsId: 'secret-key', variable: 'SECRET_KEY'),
-                    string(credentialsId: 'jwt-scret', variable: 'JWT_SECRET'),
+                    string(credentialsId: 'jwt-secret', variable: 'JWT_SECRET'),
                     string(credentialsId: 'admin-username', variable: 'ADMIN_USERNAME'),
                     string(credentialsId: 'admin-password-hash', variable: 'ADMIN_PASSWORD_HASH')
                 ]) {
@@ -36,6 +47,13 @@ pipeline {
                       sed -i "s|^ADMIN_PASSWORD_HASH=.*|ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH}|" .env
                     '''
                 }
+            }
+        }
+        stage('Inject Image Tag') {
+            steps {
+                sh '''
+                    sed -i "s|^GIT_SHA=.*|GIT_SHA=${GIT_SHA}|" .env
+                '''
             }
         }
     }
