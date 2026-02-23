@@ -8,17 +8,6 @@ pipeline {
                 git url: 'https://github.com/jeevanugale/python-app.git', branch: 'bugfix-01'
             }
         }
-        stage('Resolve Git SHA') {
-            steps {
-                script {
-                    env.GIT_SHA = sh(
-                        script: 'git rev-parse --short HEAD',
-                        returnStdout: true
-                    ).trim()
-                }
-                echo "Deploying image tag: ${env.GIT_SHA}"
-            }
-        }
         stage('Copy .env.example') {
             steps {
                 sh 'cp .env.example .env'
@@ -52,7 +41,19 @@ pipeline {
         stage('Inject Image Tag') {
             steps {
                 sh '''
-                    sed -i "s|^GIT_SHA=.*|GIT_SHA=${GIT_SHA}|" .env
+                    sed -i "s|image: jeevanugale/admin_service:.*|image: jeevanugale/admin_service:bugfix-01-${GIT_SHA}|" docker-compose.yml
+                    sed -i "s|image: jeevanugale/user_service:.*|image: jeevanugale/user_service:bugfix-01-${GIT_SHA}|" docker-compose.yml
+                    sed -i "s|image: jeevanugale/auth_service:.*|image: jeevanugale/auth_service:bugfix-01-${GIT_SHA}|" docker-compose.yml
+                    sed -i "s|image: jeevanugale/web_frontend:.*|image: jeevanugale/web_frontend:bugfix-01-${GIT_SHA}|" docker-compose.yml
+                '''
+            }
+        }
+        stage('run docker compose') {
+            steps {
+                sh '''
+                    whoami
+                    id
+                    docker compose up -d
                 '''
             }
         }
