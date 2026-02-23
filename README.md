@@ -41,7 +41,9 @@ cp .env.example .env
 
 # Edit .env with your database credentials and secrets
 ```
-**ADMIN_USERNAME=admin, ADMIN_PASSWORD_HASH=sscrypt:32768:8:1$1O1S5cFpa9IIVF7s$3f908b53273a774ba3cb90051bd017b33b0eb9a7673973b5d0e6b4fbe16fc5232c331ee895aae51e2eed51cd29e3ac31857cc54823c7747a9703c9ef82cb946f**
+**DB_PASS=flaskpass**
+**ADMIN_USERNAME=admin**
+**ADMIN_PASSWORD_HASH=sscrypt:32768:8:1$1O1S5cFpa9IIVF7s$3f908b53273a774ba3cb90051bd017b33b0eb9a7673973b5d0e6b4fbe16fc5232c331ee895aae51e2eed51cd29e3ac31857cc54823c7747a9703c9ef82cb946f**
 
 ### 3. Run docker compose file
 
