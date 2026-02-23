@@ -1,6 +1,6 @@
 services:
   admin:
-    image: jeevanugale/admin_service:latest
+    image: jeevanugale/admin_service:test-
     container_name: admin
     ports:
       - "5003:5003"
@@ -8,7 +8,7 @@ services:
       - .env
 
   user:
-    image: jeevanugale/user_service:latest
+    image: jeevanugale/user_service:test-
     container_name: user
     ports:
       - "5002:5002"
@@ -16,7 +16,7 @@ services:
       - .env
 
   auth:
-    image: jeevanugale/auth_service:latest
+    image: jeevanugale/auth_service:test-
     container_name: auth
     ports:
       - "5001:5001"
@@ -24,7 +24,7 @@ services:
       - .env
 
   web:
-    image: jeevanugale/web_frontend:latest
+    image: jeevanugale/web_frontend:test-
     container_name: web
     ports:
       - "5000:5000"
