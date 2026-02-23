@@ -25,25 +25,25 @@ jobs:
 
             - name: Build web_frontend image
               run: |
-                docker build -f services/web_frontend/Dockerfile -t jeevanugale/web_frontend:${{ github.sha }} services/web_frontend
+                docker build -f services/web_frontend/Dockerfile -t jeevanugale/web_frontend:test-${{ github.sha }} services/web_frontend
                 docker images
                 docker push jeevanugale/web_frontend:${{ github.sha }}
 
             - name: Build auth_service image
               run: |
-                docker build -f services/auth_service/Dockerfile -t jeevanugale/auth_service:${{ github.sha }} services/auth_service
+                docker build -f services/auth_service/Dockerfile -t jeevanugale/auth_service:test-${{ github.sha }} services/auth_service
                 docker images
                 docker push jeevanugale/auth_service:${{ github.sha }}
 
             - name: Build user_service image
               run: |
-                docker build -f services/user_service/Dockerfile -t jeevanugale/user_service:${{ github.sha }} services/user_service
+                docker build -f services/user_service/Dockerfile -t jeevanugale/user_service:test-${{ github.sha }} services/user_service
                 docker images
                 docker push jeevanugale/user_service:${{ github.sha }}
 
             - name: Build admin_service image
               run: |
-                docker build -f services/admin_service/Dockerfile -t jeevanugale/admin_service:${{ github.sha }} services/admin_service
+                docker build -f services/admin_service/Dockerfile -t jeevanugale/admin_service:test-${{ github.sha }} services/admin_service
                 docker images
                 docker push jeevanugale/admin_service:${{ github.sha }}
 
