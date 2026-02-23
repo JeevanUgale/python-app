@@ -60,7 +60,7 @@ jobs:
                 exit-code: '0'
                 vuln-type: os,library
                 severity: CRITICAL,HIGH,MEDIUM
-                output: trivy-web_frontend-report.txt
+                output: trivy-web_frontend-report-bugfix-01.txt
 
             - name: auth Docker Image Scan
               uses: aquasecurity/trivy-action@0.33.1
@@ -71,7 +71,7 @@ jobs:
                 exit-code: '0'
                 vuln-type: os,library
                 severity: CRITICAL,HIGH,MEDIUM
-                output: trivy-auth_service-report.txt
+                output: trivy-auth_service-report-bugfix-01.txt
 
             - name: user Docker Image Scan
               uses: aquasecurity/trivy-action@0.33.1
@@ -82,7 +82,7 @@ jobs:
                 exit-code: '0'
                 vuln-type: os,library
                 severity: CRITICAL,HIGH,MEDIUM
-                output: trivy-user_service-report.txt
+                output: trivy-user_service-report-bugfix-01.txt
 
             - name: admin Docker Image Scan
               uses: aquasecurity/trivy-action@0.33.1
@@ -93,7 +93,7 @@ jobs:
                 exit-code: '0'
                 vuln-type: os,library
                 severity: CRITICAL,HIGH,MEDIUM
-                output: trivy-admin_service-report.txt
+                output: trivy-admin_service-report-bugfix-01.txt
 
             - name: Upload Trivy Reports as Artifacts
               uses: actions/upload-artifact@v4
