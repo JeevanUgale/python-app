@@ -1,0 +1,106 @@
+name: CI pipeline for python application
+on:
+    #schedule:
+    #    - cron: '0 0 * * *' # Schedule the workflow to run daily at midnight
+    push:
+        branches:
+            - bugfix-01
+
+permissions:
+    contents: read
+
+jobs:
+    Docker-Build-Push:
+        runs-on: ubuntu-latest
+        environment: development
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+
+            - name: Docker login
+              uses: docker/login-action@v3
+              with:
+                username: ${{ vars.DOCKER_USERNAME }}
+                password: ${{ secrets.DOCKER_PASSWORD }}
+
+            - name: Build web_frontend image
+              run: |
+                docker build -f services/web_frontend/Dockerfile -t jeevanugale/web_frontend:${{ github.sha }} services/web_frontend
+                docker images
+                docker push jeevanugale/web_frontend:${{ github.sha }}
+
+            - name: Build auth_service image
+              run: |
+                docker build -f services/auth_service/Dockerfile -t jeevanugale/auth_service:${{ github.sha }} services/auth_service
+                docker images
+                docker push jeevanugale/auth_service:${{ github.sha }}
+
+            - name: Build user_service image
+              run: |
+                docker build -f services/user_service/Dockerfile -t jeevanugale/user_service:${{ github.sha }} services/user_service
+                docker images
+                docker push jeevanugale/user_service:${{ github.sha }}
+
+            - name: Build admin_service image
+              run: |
+                docker build -f services/admin_service/Dockerfile -t jeevanugale/admin_service:${{ github.sha }} services/admin_service
+                docker images
+                docker push jeevanugale/admin_service:${{ github.sha }}
+
+    Trivy-Scan:
+        runs-on: ubuntu-latest
+        needs: Docker-Build-Push
+        steps:
+            - name: web Docker Image Scan
+              uses: aquasecurity/trivy-action@0.33.1
+              with:
+                scan-type: image
+                scan-ref: jeevanugale/web_frontend:${{ github.sha }}
+                format: table
+                exit-code: '0'
+                vuln-type: os,library
+                severity: CRITICAL,HIGH,MEDIUM
+                output: trivy-web_frontend-report.txt
+
+            - name: auth Docker Image Scan
+              uses: aquasecurity/trivy-action@0.33.1
+              with:
+                scan-type: image
+                scan-ref: jeevanugale/auth_service:${{ github.sha }}
+                format: table
+                exit-code: '0'
+                vuln-type: os,library
+                severity: CRITICAL,HIGH,MEDIUM
+                output: trivy-auth_service-report.txt
+
+            - name: user Docker Image Scan
+              uses: aquasecurity/trivy-action@0.33.1
+              with:
+                scan-type: image
+                scan-ref: jeevanugale/user_service:${{ github.sha }}
+                format: table
+                exit-code: '0'
+                vuln-type: os,library
+                severity: CRITICAL,HIGH,MEDIUM
+                output: trivy-user_service-report.txt
+
+            - name: admin Docker Image Scan
+              uses: aquasecurity/trivy-action@0.33.1
+              with:
+                scan-type: image
+                scan-ref: jeevanugale/admin_service:${{ github.sha }}
+                format: table
+                exit-code: '0'
+                vuln-type: os,library
+                severity: CRITICAL,HIGH,MEDIUM
+                output: trivy-admin_service-report.txt
+
+            - name: Upload Trivy Reports as Artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                name: trivy-web_frontend-report.txt, trivy-auth_service-report.txt, trivy-user_service-report.txt, trivy-admin_service-report.txt
+                path: |
+                  trivy-web_frontend-report.txt
+                  trivy-auth_service-report.txt
+                  trivy-user_service-report.txt
+                  trivy-admin_service-report.txt
