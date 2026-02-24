@@ -38,19 +38,12 @@ pipeline {
                 }
             }
         }
-        stage('Inject Image Tag') {
-            steps {
-                sh '''
-                    sed -i "s|image: jeevanugale/admin_service:.*|image: jeevanugale/admin_service:test-${GIT_SHA}|" docker-compose.yml
-                    sed -i "s|image: jeevanugale/user_service:.*|image: jeevanugale/user_service:test-${GIT_SHA}|" docker-compose.yml
-                    sed -i "s|image: jeevanugale/auth_service:.*|image: jeevanugale/auth_service:test-${GIT_SHA}|" docker-compose.yml
-                    sed -i "s|image: jeevanugale/web_frontend:.*|image: jeevanugale/web_frontend:test-${GIT_SHA}|" docker-compose.yml
-                '''
-            }
-        }
         stage('run docker compose') {
             steps {
-                sh 'docker compose up -d'
+                sh '''
+                  docker compose pull
+                  docker compose up -d
+                '''
             }
         }
     }
