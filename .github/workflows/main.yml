@@ -126,4 +126,11 @@ jobs:
             git config user.email "github-actions@github.com"
             git add docker-compose.yml
             git commit -m "ci: update image tags [skip ci]" || echo "No changes to commit"
+
+        - name: Configure Git remote with GITHUB_TOKEN
+          run: |
+              git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
+        - name: Push changes to the current branch
+          run:
             git push HEAD:${{ github.ref_name }}
