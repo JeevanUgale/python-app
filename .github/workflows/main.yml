@@ -9,7 +9,7 @@ on:
             - 'docker-compose.yml'
 
 permissions:
-    contents: read
+    contents: write
 
 jobs:
     Docker-Build-Push:
@@ -133,4 +133,4 @@ jobs:
 
         - name: Push changes to the current branch
           run:
-            git push HEAD:${{ github.ref_name }}
+            git push origin HEAD:${{ github.ref_name }}
