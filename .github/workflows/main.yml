@@ -9,7 +9,7 @@ on:
             - 'docker-compose.yml'
 
 permissions:
-    contents: read
+    contents: write
 
 jobs:
     Docker-Build-Push:
