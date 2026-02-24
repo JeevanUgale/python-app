@@ -38,21 +38,10 @@ pipeline {
                 }
             }
         }
-        stage('Inject Image Tag') {
-            steps {
-                sh '''
-                    sed -i "s|image: jeevanugale/admin_service:.*|image: jeevanugale/admin_service:bugfix-01-${GIT_SHA}|" docker-compose.yml
-                    sed -i "s|image: jeevanugale/user_service:.*|image: jeevanugale/user_service:bugfix-01-${GIT_SHA}|" docker-compose.yml
-                    sed -i "s|image: jeevanugale/auth_service:.*|image: jeevanugale/auth_service:bugfix-01-${GIT_SHA}|" docker-compose.yml
-                    sed -i "s|image: jeevanugale/web_frontend:.*|image: jeevanugale/web_frontend:bugfix-01-${GIT_SHA}|" docker-compose.yml
-                '''
-            }
-        }
         stage('run docker compose') {
             steps {
                 sh '''
-                    whoami
-                    id
+                    docker compose pull
                     docker compose up -d
                 '''
             }
