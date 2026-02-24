@@ -41,7 +41,7 @@ pipeline {
         stage('run docker compose') {
             steps {
                 sh '''
-                    docker rm -f $(docker ps -aq)
+                    docker rm $(docker ps -aq) -f
                     docker compose pull
                     docker compose up -d
                 '''
