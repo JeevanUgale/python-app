@@ -9,7 +9,7 @@ on:
             - 'docker-compose.yml'
 
 permissions:
-    contents: write
+    contents: read
 
 jobs:
     Docker-Build-Push:
@@ -118,7 +118,7 @@ jobs:
 
         - name: Update docker-compose.yml with new image tags
           run: |
-            sed -i "s|test-01-.*|test-01-${{ github.sha }}|g" docker-compose.yml
+            sed -i "s|test-.*|test-${{ github.sha }}|g" docker-compose.yml
 
         - name: Commit and push updated compose file
           run: |
