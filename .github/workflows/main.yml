@@ -7,6 +7,10 @@ on:
             - testing
         paths-ignore:
             - 'docker-compose.yml'
+            # - 'k8s-manifests/admin-service/deployment.yml'
+            # - 'k8s-manifests/user-service/deployment.yml'
+            # - 'k8s-manifests/auth-service/deployment.yml'
+            # - 'k8s-manifests/web-frontend/deployment.yml'
 
 permissions:
     contents: write
@@ -119,6 +123,10 @@ jobs:
         - name: Update docker-compose.yml with new image tags
           run: |
             sed -i "s|test-.*|test-${{ github.sha }}|g" docker-compose.yml
+            sed -i "s|test-.*|test-${{ github.sha }}|g" k8s-manifests/admin-service/deployment.yml
+            sed -i "s|test-.*|test-${{ github.sha }}|g" k8s-manifests/user-service/deployment.yml
+            sed -i "s|test-.*|test-${{ github.sha }}|g" k8s-manifests/auth-service/deployment.yml
+            sed -i "s|test-.*|test-${{ github.sha }}|g" k8s-manifests/web-frontend/deployment.yml
 
         - name: Commit and push updated compose file
           run: |
