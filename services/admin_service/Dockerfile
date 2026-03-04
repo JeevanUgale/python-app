@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-WORKDIR /app/admin_service
+WORKDIR /app/services/admin_service
 
 COPY . .
 

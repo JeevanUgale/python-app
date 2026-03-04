@@ -1,0 +1,47 @@
+apiVersion: appls/v1
+kind: Deployment
+metadata:
+  name: web-deploy
+  namespace: python
+  labels:
+    app: web-frontend
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-frontend
+      environment: dev
+  template:
+    metadata:
+      labels:
+        app: web-frontend
+        environment: dev
+    spec:
+      containers:
+        - name: web-frontend
+          image: jeevanugale/web_frontend:main-latest
+          ports:
+            - containerPort: 5000
+          envFrom:
+            - configMapRef:
+                name: app-configs
+            - secretRef:
+                name: app-secrets
+
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 3
+
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "256Mi"
+              cpu: "500m"

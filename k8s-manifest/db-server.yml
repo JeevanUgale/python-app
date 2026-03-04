@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-server
+  namespace: python
+  labels:
+    app: python-app
+    environment: dev
+spec:
+  ports:
+    - port: 3306
+      targetPort: 3306
+  clusterIP: None
+---
+apiVersion: v1
+kind: endpoints
+metadata:
+  name: db-server
+  namespace: python
+  labels:
+    app: python-app
+    environment: dev
+subsets:
+  - addresses:
+      - ip: 0.0.0.0
+    ports:
+      - port: 3306
