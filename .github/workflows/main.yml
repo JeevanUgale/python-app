@@ -7,10 +7,10 @@ on:
             - testing
         paths-ignore:
             - 'docker-compose.yml'
-            # - 'k8s-manifests/admin-service/deployment.yml'
-            # - 'k8s-manifests/user-service/deployment.yml'
-            # - 'k8s-manifests/auth-service/deployment.yml'
-            # - 'k8s-manifests/web-frontend/deployment.yml'
+            # - 'k8s-manifest/admin-service/deployment.yml'
+            # - 'k8s-manifest/user-service/deployment.yml'
+            # - 'k8s-manifest/auth-service/deployment.yml'
+            # - 'k8s-manifest/web-frontend/deployment.yml'
 
 permissions:
     contents: write
