@@ -1,6 +1,6 @@
 FROM python:3.11-slim
 
-COPY . .
+COPY . /app
 
 WORKDIR /app/services/web_frontend
 
