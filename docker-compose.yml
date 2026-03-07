@@ -1,6 +1,6 @@
 services:
   admin-service:
-    image: jeevanugale/admin_service:test-385161287ff6d10a175545734e7ae937b0eb7a6b
+    image: jeevanugale/admin_service:test-9d8e00e91821c0c91d9563b7874561c073ecad5d
     container_name: admin
     ports:
       - "5003:5003"
@@ -8,7 +8,7 @@ services:
       - .env
 
   user-service:
-    image: jeevanugale/user_service:test-385161287ff6d10a175545734e7ae937b0eb7a6b
+    image: jeevanugale/user_service:test-9d8e00e91821c0c91d9563b7874561c073ecad5d
     container_name: user
     ports:
       - "5002:5002"
@@ -16,7 +16,7 @@ services:
       - .env
 
   auth-service:
-    image: jeevanugale/auth_service:test-385161287ff6d10a175545734e7ae937b0eb7a6b
+    image: jeevanugale/auth_service:test-9d8e00e91821c0c91d9563b7874561c073ecad5d
     container_name: auth
     ports:
       - "5001:5001"
@@ -24,7 +24,7 @@ services:
       - .env
 
   web-frontend:
-    image: jeevanugale/web_frontend:test-385161287ff6d10a175545734e7ae937b0eb7a6b
+    image: jeevanugale/web_frontend:test-9d8e00e91821c0c91d9563b7874561c073ecad5d
     container_name: web
     ports:
       - "5000:5000"
