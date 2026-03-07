@@ -4,7 +4,7 @@ COPY . .
 
 WORKDIR /app/services/admin_service
 
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r services/admin_service/requirements.txt
 
 
 CMD ["python", "app.py"]

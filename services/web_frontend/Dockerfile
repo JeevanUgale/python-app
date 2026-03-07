@@ -4,6 +4,6 @@ COPY . .
 
 WORKDIR /app/services/web_frontend
 
-RUN pip install --upgrade pip && pip install -r requirements.txt
+RUN pip install --upgrade pip && pip install -r services/web_frontend/requirements.txt
 
 CMD ["python", "app.py"]
