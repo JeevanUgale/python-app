@@ -13,7 +13,7 @@ spec:
   clusterIP: None
 ---
 apiVersion: v1
-kind: endpoints
+kind: Endpoints
 metadata:
   name: db-server
   namespace: python
