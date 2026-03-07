@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: auth-service
-          image: jeevanugale/auth_service:test-514b968f9d7c6e085ba2e6da0b4b47546ead40ab
+          image: jeevanugale/auth_service:test-385161287ff6d10a175545734e7ae937b0eb7a6b
           ports:
             - containerPort: 5002
           envFrom:
