@@ -4,7 +4,7 @@ on:
     #    - cron: '0 0 * * *' # Schedule the workflow to run daily at midnight
     push:
         branches:
-            - bugfix01
+            - bugfix-01
         paths-ignore:
             - 'docker-compose.yml'
             - 'k8s-manifest/admin-service/deployment.yml'
