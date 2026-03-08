@@ -4,9 +4,13 @@ on:
     #    - cron: '0 0 * * *' # Schedule the workflow to run daily at midnight
     push:
         branches:
-            - bugfix-01
+            - testing
         paths-ignore:
-            - 'docker-compose.yml'
+            # - 'docker-compose.yml'
+            # - 'k8s-manifest/admin-service/deployment.yml'
+            # - 'k8s-manifest/user-service/deployment.yml'
+            # - 'k8s-manifest/auth-service/deployment.yml'
+            # - 'k8s-manifest/web-frontend/deployment.yml'
 
 permissions:
     contents: write
@@ -27,27 +31,27 @@ jobs:
 
             - name: Build web_frontend image
               run: |
-                docker build -f services/web_frontend/Dockerfile -t jeevanugale/web_frontend:bugfix-01-${{ github.sha }} services/web_frontend
+                docker build -f services/web_frontend/Dockerfile -t jeevanugale/web_frontend:bugfix-${{ github.sha }} .
                 docker images
-                docker push jeevanugale/web_frontend:bugfix-01-${{ github.sha }}
+                docker push jeevanugale/web_frontend:bugfix-${{ github.sha }}
 
             - name: Build auth_service image
               run: |
-                docker build -f services/auth_service/Dockerfile -t jeevanugale/auth_service:bugfix-01-${{ github.sha }} services/auth_service
+                docker build -f services/auth_service/Dockerfile -t jeevanugale/auth_service:bugfix-${{ github.sha }} .
                 docker images
-                docker push jeevanugale/auth_service:bugfix-01-${{ github.sha }}
+                docker push jeevanugale/auth_service:bugfix-${{ github.sha }}
 
             - name: Build user_service image
               run: |
-                docker build -f services/user_service/Dockerfile -t jeevanugale/user_service:bugfix-01-${{ github.sha }} services/user_service
+                docker build -f services/user_service/Dockerfile -t jeevanugale/user_service:bugfix-${{ github.sha }} .
                 docker images
-                docker push jeevanugale/user_service:bugfix-01-${{ github.sha }}
+                docker push jeevanugale/user_service:bugfix-${{ github.sha }}
 
             - name: Build admin_service image
               run: |
-                docker build -f services/admin_service/Dockerfile -t jeevanugale/admin_service:bugfix-01-${{ github.sha }} services/admin_service
+                docker build -f services/admin_service/Dockerfile -t jeevanugale/admin_service:bugfix-${{ github.sha }} .
                 docker images
-                docker push jeevanugale/admin_service:bugfix-01-${{ github.sha }}
+                docker push jeevanugale/admin_service:bugfix-${{ github.sha }}
 
     Trivy-Scan:
         runs-on: ubuntu-latest
@@ -57,55 +61,55 @@ jobs:
               uses: aquasecurity/trivy-action@0.33.1
               with:
                 scan-type: image
-                scan-ref: jeevanugale/web_frontend:bugfix-01-${{ github.sha }}
+                scan-ref: jeevanugale/web_frontend:bugfix-${{ github.sha }}
                 format: table
                 exit-code: '0'
                 vuln-type: os,library
                 severity: CRITICAL,HIGH,MEDIUM
-                output: trivy-web_frontend-report-bugfix-01.txt
+                output: trivy-web_frontend-report-bugfix.txt
 
             - name: auth Docker Image Scan
               uses: aquasecurity/trivy-action@0.33.1
               with:
                 scan-type: image
-                scan-ref: jeevanugale/auth_service:bugfix-01-${{ github.sha }}
+                scan-ref: jeevanugale/auth_service:bugfix-${{ github.sha }}
                 format: table
                 exit-code: '0'
                 vuln-type: os,library
                 severity: CRITICAL,HIGH,MEDIUM
-                output: trivy-auth_service-report-bugfix-01.txt
+                output: trivy-auth_service-report-bugfix.txt
 
             - name: user Docker Image Scan
               uses: aquasecurity/trivy-action@0.33.1
               with:
                 scan-type: image
-                scan-ref: jeevanugale/user_service:bugfix-01-${{ github.sha }}
+                scan-ref: jeevanugale/user_service:bugfix-${{ github.sha }}
                 format: table
                 exit-code: '0'
                 vuln-type: os,library
                 severity: CRITICAL,HIGH,MEDIUM
-                output: trivy-user_service-report-bugfix-01.txt
+                output: trivy-user_service-report-bugfix.txt
 
             - name: admin Docker Image Scan
               uses: aquasecurity/trivy-action@0.33.1
               with:
                 scan-type: image
-                scan-ref: jeevanugale/admin_service:bugfix-01-${{ github.sha }}
+                scan-ref: jeevanugale/admin_service:bugfix-${{ github.sha }}
                 format: table
                 exit-code: '0'
                 vuln-type: os,library
                 severity: CRITICAL,HIGH,MEDIUM
-                output: trivy-admin_service-report-bugfix-01.txt
+                output: trivy-admin_service-report-bugfix.txt
 
             - name: Upload Trivy Reports as Artifacts
               uses: actions/upload-artifact@v4
               with:
-                name: trivy-web_frontend-report-bugfix-01.txt, trivy-auth_service-report-bugfix-01.txt, trivy-user_service-report-bugfix-01.txt, trivy-admin_service-report-bugfix-01.txt
+                name: trivy-web_frontend-report-bugfix.txt, trivy-auth_service-report-bugfix.txt, trivy-user_service-report-bugfix.txt, trivy-admin_service-report-bugfix.txt
                 path: |
-                  trivy-web_frontend-report-bugfix-01.txt
-                  trivy-auth_service-report-bugfix-01.txt
-                  trivy-user_service-report-bugfix-01.txt
-                  trivy-admin_service-report-bugfix-01.txt
+                  trivy-web_frontend-report-bugfix.txt
+                  trivy-auth_service-report-bugfix.txt
+                  trivy-user_service-report-bugfix.txt
+                  trivy-admin_service-report-bugfix.txt
 
     Update-Compose-And-Commit:
       runs-on: ubuntu-latest
@@ -118,13 +122,17 @@ jobs:
 
         - name: Update docker-compose.yml with new image tags
           run: |
-            sed -i "s|bugfix-01-.*|bugfix-01-${{ github.sha }}|g" docker-compose.yml
+            sed -i "s|bugfix-.*|bugfix-${{ github.sha }}|g" docker-compose.yml
+            sed -i "s|bugfix-.*|bugfix-${{ github.sha }}|g" k8s-manifest/admin-service/deployment.yml
+            sed -i "s|bugfix-.*|bugfix-${{ github.sha }}|g" k8s-manifest/user-service/deployment.yml
+            sed -i "s|bugfix-.*|bugfix-${{ github.sha }}|g" k8s-manifest/auth-service/deployment.yml
+            sed -i "s|bugfix-.*|bugfix-${{ github.sha }}|g" k8s-manifest/web-frontend/deployment.yml
 
         - name: Commit and push updated compose file
           run: |
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
-            git add docker-compose.yml
+            git add docker-compose.yml k8s-manifest/admin-service/deployment.yml k8s-manifest/user-service/deployment.yml k8s-manifest/auth-service/deployment.yml k8s-manifest/web-frontend/deployment.yml
             git commit -m "ci: update image tags [skip ci]" || echo "No changes to commit"
 
         - name: Configure Git remote with GITHUB_TOKEN

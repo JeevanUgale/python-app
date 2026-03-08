@@ -5,7 +5,11 @@ pipeline {
     stages {
         stage('Clone reporitory') {
             steps {
+<<<<<<< HEAD
                 git url: 'https://github.com/jeevanugale/python-app.git', branch: 'bugfix-01'
+=======
+                git url: 'https://github.com/jeevanugale/python-app.git', branch: 'testing'
+>>>>>>> testing
             }
         }
         stage('Copy .env.example') {
@@ -41,9 +45,15 @@ pipeline {
         stage('run docker compose') {
             steps {
                 sh '''
+<<<<<<< HEAD
                     docker rm $(docker ps -aq) -f || true
                     docker compose pull
                     docker compose up -d
+=======
+                  docker rm $(docker ps -aq) -f || true
+                  docker compose pull
+                  docker compose up -d
+>>>>>>> testing
                 '''
             }
         }

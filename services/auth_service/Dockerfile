@@ -1,8 +1,8 @@
 FROM python:3.11-slim
 
-WORKDIR /app/auth_service
+COPY . /app
 
-COPY . .
+WORKDIR /app/services/auth_service
 
 RUN pip install --upgrade pip && pip install -r requirements.txt
 

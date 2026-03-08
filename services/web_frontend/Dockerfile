@@ -1,8 +1,8 @@
 FROM python:3.11-slim
 
-WORKDIR /app/web_frontend
+COPY . /app
 
-COPY . .
+WORKDIR /app/services/web_frontend
 
 RUN pip install --upgrade pip && pip install -r requirements.txt
 

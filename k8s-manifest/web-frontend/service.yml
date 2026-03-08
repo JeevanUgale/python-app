@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-frontend
+  namespace: python
+  labels:
+    app: web-frontend
+    environment: dev
+spec:
+  selector:
+    app: web-frontend
+    environment: dev
+  ports:
+    - port: 5000
+      targetPort: 5000
+      nodePort: 30000
+  type: NodePort
