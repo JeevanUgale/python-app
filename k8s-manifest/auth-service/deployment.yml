@@ -22,7 +22,7 @@ spec:
         - name: auth-service
           image: jeevanugale/auth_service:test-9c3cd06d44c692c510d75cd522bd17fc216eb870
           ports:
-            - containerPort: 5002
+            - containerPort: 5001
           envFrom:
             - configMapRef:
                 name: app-configs
@@ -32,7 +32,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: 5002
+              port: 5001
             initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 3
