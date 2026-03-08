@@ -7,10 +7,10 @@ on:
             - testing
         paths-ignore:
             - 'docker-compose.yml'
-            - 'k8s-manifest/admin-service/deployment.yml'
-            - 'k8s-manifest/user-service/deployment.yml'
-            - 'k8s-manifest/auth-service/deployment.yml'
-            - 'k8s-manifest/web-frontend/deployment.yml'
+            # - 'k8s-manifest/admin-service/deployment.yml'
+            # - 'k8s-manifest/user-service/deployment.yml'
+            # - 'k8s-manifest/auth-service/deployment.yml'
+            # - 'k8s-manifest/web-frontend/deployment.yml'
 
 permissions:
     contents: write
@@ -132,7 +132,7 @@ jobs:
           run: |
             git config user.name "github-actions"
             git config user.email "github-actions@github.com"
-            git add docker-compose.yml k8s-manifest/admin-service/deployment.yml k8s-manifest/user-service/deployment.yml k8s-manifest/auth-service/deployment.yml k8s-manifest/web-frontend/deployment.yml
+            git add docker-compose.yml 
             git commit -m "ci: update image tags [skip ci]" || echo "No changes to commit"
 
         - name: Configure Git remote with GITHUB_TOKEN
