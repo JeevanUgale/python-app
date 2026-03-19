@@ -5,11 +5,3 @@ metadata:
   labels:
     app: python-app
     environment: dev
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: monitoring
-  labels:
-    app: monitoring
-    environment: dev
