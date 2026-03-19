@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-sa
+  namespace: monitoring
+  labels:
+    app: monitoring
+    environment: dev
+spec:
+  automountServiceAccountToken: false

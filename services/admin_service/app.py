@@ -1,12 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import jwt
-import os
 import json
+import logging
+import os
 from datetime import datetime
 from functools import wraps
 from pathlib import Path
 from dotenv import load_dotenv
+
+from shared.utils import setup_prometheus
 
 # Load .env from project root
 basedir = Path(__file__).resolve().parents[2]
@@ -72,7 +75,9 @@ class AuditLog(db.Model):
 
 def create_app():
     app = Flask(__name__)
-    
+    setup_prometheus(app, 'admin-service')
+    logger = logging.getLogger('admin-service')
+
     # Configuration
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'dev-secret-key'
     DB_USER = os.environ.get('DB_USER') or 'root'
@@ -92,9 +97,9 @@ def create_app():
     with app.app_context():
         try:
             db.create_all()
-            print("✅ Admin Service: Database connected and tables created")
+            logger.info("✅ Admin Service: Database connected and tables created")
         except Exception as e:
-            print(f"⚠️  Admin Service: Database connection failed: {e}")
+            logger.error(f"⚠️  Admin Service: Database connection failed: {e}")
 
     def verify_admin_token(f):
         """Decorator to verify admin JWT token"""
@@ -153,7 +158,7 @@ def create_app():
             db.session.add(audit)
             db.session.commit()
         except Exception as e:
-            print(f"⚠️  Failed to log audit: {e}")
+            logger.error(f"⚠️  Failed to log audit: {e}")
 
     @app.route('/health', methods=['GET'])
     def health_check():
@@ -341,7 +346,8 @@ def run():
     port = int(os.environ.get('ADMIN_SERVICE_PORT', 5003))
     host = os.environ.get('HOST', '0.0.0.0')
     debug = os.environ.get('DEBUG', 'False').lower() == 'true'
-    print(f"⚙️  Starting Admin Service on {host}:{port}")
+    logger = logging.getLogger('admin-service')
+    logger.info(f"⚙️  Starting Admin Service on {host}:{port}")
     app.run(host=host, port=port, debug=debug)
 
 

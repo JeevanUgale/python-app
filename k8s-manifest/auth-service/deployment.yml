@@ -17,6 +17,10 @@ spec:
       labels:
         app: auth-service
         environment: dev
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "5001"
     spec:
       containers:
         - name: auth-service
