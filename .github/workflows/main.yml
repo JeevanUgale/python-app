@@ -17,7 +17,7 @@ permissions:
 
 jobs:
     Docker-Build-Push:
-        runs-on: self-runner
+        runs-on: self-hosted
         environment: development
         steps:
             - name: Checkout code
@@ -54,7 +54,7 @@ jobs:
                 docker push jeevanugale/admin_service:test-${{ github.sha }}
 
     Trivy-Scan:
-        runs-on: self-runner
+        runs-on: self-hosted
         needs: Docker-Build-Push
         steps:
             - name: web Docker Image Scan
@@ -112,7 +112,7 @@ jobs:
                   trivy-admin_service-report-test.txt
 
     Update-Compose-And-Commit:
-      runs-on: self-runner
+      runs-on: self-hosted
       needs: Trivy-Scan
       steps:
         - name: Checkout code
