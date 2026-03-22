@@ -7,9 +7,21 @@ metadata:
     app: python-app
     environment: dev
 spec:
-  type: ExternalName
-  externalName: 0.0.0.0
   ports:
     - port: 3306
       targetPort: 3306
-      protocol: TCP
+  clusterIP: None
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: db-server
+  namespace: python
+  labels:
+    app: python-app
+    environment: dev
+subsets:
+  - addresses:
+      - ip: 192.168.33.30
+    ports:
+      - port: 3306
