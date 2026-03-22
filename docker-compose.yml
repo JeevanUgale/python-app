@@ -31,6 +31,6 @@ services:
     env_file:
       - .env
     depends_on:
-      - admin
-      - user
-      - auth
+      - admin-service
+      - user-service
+      - auth-service
