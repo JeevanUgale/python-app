@@ -6,4 +6,4 @@ WORKDIR /app
 
 RUN pip install --upgrade pip && pip install -r services/user_service/requirements.txt
 
-CMD ["python", "app.py"]
+CMD ["python", "services/user_service/app.py"]

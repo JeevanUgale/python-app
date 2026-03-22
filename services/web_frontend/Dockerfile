@@ -6,4 +6,4 @@ WORKDIR /app
 
 RUN pip install --upgrade pip && pip install -r services/web_frontend/requirements.txt
 
-CMD ["python", "app.py"]
+CMD ["python", "services/web_frontend/app.py"]

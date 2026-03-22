@@ -6,4 +6,4 @@ WORKDIR /app
 
 RUN pip install --upgrade pip && pip install -r services/auth_service/requirements.txt
 
-CMD ["python", "app.py"]
+CMD ["python", "services/auth_service/app.py"]
