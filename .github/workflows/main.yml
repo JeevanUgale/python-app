@@ -1,9 +1,9 @@
 name: CI pipeline for python application
 
 on:
-  pull_request:
+  push:
     branches:
-      - bugfix-01
+      - testing
     paths-ignore:
       - 'docker-compose.yml'
       - 'k8s-manifest/admin-service/deployment.yml'
@@ -13,7 +13,6 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
 
 jobs:
 
@@ -25,11 +24,13 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
 
-      - name: Get PR diff
+      # Get latest commit diff
+      - name: Get latest commit diff
         run: |
-          git fetch origin ${{ github.base_ref }}
-          git diff origin/${{ github.base_ref }} > diff.txt
+          git diff HEAD~1 HEAD > diff.txt || echo "No diff found"
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -46,19 +47,13 @@ jobs:
         run: |
           python scripts/ai_review.py
 
-      - name: Post PR comment
-        uses: actions/github-script@v6
+      # Save AI output as artifact instead of PR comment
+      - name: Upload AI Review Report
+        uses: actions/upload-artifact@v4
         with:
-          script: |
-            const fs = require('fs');
-            const review = fs.readFileSync('review.txt', 'utf8');
+          name: ai-review-report
+          path: review.txt
 
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: review
-            });
 
 
   Docker-Build-Push:
@@ -107,6 +102,7 @@ jobs:
           docker push jeevanugale/admin_service:test-${{ github.sha }}
 
 
+
   Trivy-Scan:
 
     runs-on: self-hosted
@@ -143,6 +139,7 @@ jobs:
           path: |
             trivy-web.txt
             trivy-auth.txt
+
 
 
   Update-Compose-And-Commit:
