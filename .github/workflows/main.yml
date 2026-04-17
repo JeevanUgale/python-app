@@ -1,144 +1,179 @@
 name: CI pipeline for python application
+
 on:
-    #schedule:
-    #    - cron: '0 0 * * *' # Schedule the workflow to run daily at midnight
-    push:
-        branches:
-            - testing
-        paths-ignore:
-            - 'docker-compose.yml'
-            - 'k8s-manifest/admin-service/deployment.yml'
-            - 'k8s-manifest/user-service/deployment.yml'
-            - 'k8s-manifest/auth-service/deployment.yml'
-            - 'k8s-manifest/web-frontend/deployment.yml'
+  pull_request:
+    branches:
+      - bugfix-01
+    paths-ignore:
+      - 'docker-compose.yml'
+      - 'k8s-manifest/admin-service/deployment.yml'
+      - 'k8s-manifest/user-service/deployment.yml'
+      - 'k8s-manifest/auth-service/deployment.yml'
+      - 'k8s-manifest/web-frontend/deployment.yml'
 
 permissions:
-    contents: write
+  contents: write
+  pull-requests: write
 
 jobs:
-    Docker-Build-Push:
-        runs-on: self-hosted
-        environment: development
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
 
-            - name: Docker login
-              uses: docker/login-action@v3
-              with:
-                username: ${{ vars.DOCKER_USERNAME }}
-                password: ${{ secrets.DOCKER_PASSWORD }}
+  AI-Review:
 
-            - name: Build web_frontend image
-              run: |
-                docker build -f services/web_frontend/Dockerfile -t jeevanugale/web_frontend:test-${{ github.sha }} .
-                docker images
-                docker push jeevanugale/web_frontend:test-${{ github.sha }}
+    runs-on: self-hosted
 
-            - name: Build auth_service image
-              run: |
-                docker build -f services/auth_service/Dockerfile -t jeevanugale/auth_service:test-${{ github.sha }} .
-                docker images
-                docker push jeevanugale/auth_service:test-${{ github.sha }}
+    steps:
 
-            - name: Build user_service image
-              run: |
-                docker build -f services/user_service/Dockerfile -t jeevanugale/user_service:test-${{ github.sha }} .
-                docker images
-                docker push jeevanugale/user_service:test-${{ github.sha }}
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-            - name: Build admin_service image
-              run: |
-                docker build -f services/admin_service/Dockerfile -t jeevanugale/admin_service:test-${{ github.sha }} .
-                docker images
-                docker push jeevanugale/admin_service:test-${{ github.sha }}
+      - name: Get PR diff
+        run: |
+          git fetch origin ${{ github.base_ref }}
+          git diff origin/${{ github.base_ref }} > diff.txt
 
-    Trivy-Scan:
-        runs-on: self-hosted
-        needs: Docker-Build-Push
-        steps:
-            - name: web Docker Image Scan
-              uses: aquasecurity/trivy-action@0.35.0
-              with:
-                scan-type: image
-                scan-ref: jeevanugale/web_frontend:test-${{ github.sha }}
-                format: table
-                exit-code: '0'
-                vuln-type: os,library
-                severity: CRITICAL,HIGH,MEDIUM
-                output: trivy-web_frontend-report-test.txt
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
 
-            - name: auth Docker Image Scan
-              uses: aquasecurity/trivy-action@0.35.0
-              with:
-                scan-type: image
-                scan-ref: jeevanugale/auth_service:test-${{ github.sha }}
-                format: table
-                exit-code: '0'
-                vuln-type: os,library
-                severity: CRITICAL,HIGH,MEDIUM
-                output: trivy-auth_service-report-test.txt
+      - name: Install dependencies
+        run: |
+          pip install openai
 
-            - name: user Docker Image Scan
-              uses: aquasecurity/trivy-action@0.35.0
-              with:
-                scan-type: image
-                scan-ref: jeevanugale/user_service:test-${{ github.sha }}
-                format: table
-                exit-code: '0'
-                vuln-type: os,library
-                severity: CRITICAL,HIGH,MEDIUM
-                output: trivy-user_service-report-test.txt
+      - name: Run AI review
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          python scripts/ai_review.py
 
-            - name: admin Docker Image Scan
-              uses: aquasecurity/trivy-action@0.35.0
-              with:
-                scan-type: image
-                scan-ref: jeevanugale/admin_service:test-${{ github.sha }}
-                format: table
-                exit-code: '0'
-                vuln-type: os,library
-                severity: CRITICAL,HIGH,MEDIUM
-                output: trivy-admin_service-report-test.txt
+      - name: Post PR comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs');
+            const review = fs.readFileSync('review.txt', 'utf8');
 
-            - name: Upload Trivy Reports as Artifacts
-              uses: actions/upload-artifact@v4
-              with:
-                name: trivy-web_frontend-report-test.txt, trivy-auth_service-report-test.txt, trivy-user_service-report-test.txt, trivy-admin_service-report-test.txt
-                path: |
-                  trivy-web_frontend-report-test.txt
-                  trivy-auth_service-report-test.txt
-                  trivy-user_service-report-test.txt
-                  trivy-admin_service-report-test.txt
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: review
+            });
 
-    Update-Compose-And-Commit:
-      runs-on: self-hosted
-      needs: Trivy-Scan
-      steps:
-        - name: Checkout code
-          uses: actions/checkout@v4
-          with:
-            token: ${{ secrets.GITHUB_TOKEN }}
 
-        - name: Update docker-compose.yml with new image tags
-          run: |
-            sed -i "s|test-.*|test-${{ github.sha }}|g" docker-compose.yml
-            sed -i "s|test-.*|test-${{ github.sha }}|g" k8s-manifest/admin-service/deployment.yml
-            sed -i "s|test-.*|test-${{ github.sha }}|g" k8s-manifest/user-service/deployment.yml
-            sed -i "s|test-.*|test-${{ github.sha }}|g" k8s-manifest/auth-service/deployment.yml
-            sed -i "s|test-.*|test-${{ github.sha }}|g" k8s-manifest/web-frontend/deployment.yml
+  Docker-Build-Push:
 
-        - name: Commit and push updated compose file
-          run: |
-            git config user.name "github-actions"
-            git config user.email "github-actions@github.com"
-            git add docker-compose.yml k8s-manifest/admin-service/deployment.yml k8s-manifest/user-service/deployment.yml k8s-manifest/auth-service/deployment.yml k8s-manifest/web-frontend/deployment.yml
-            git commit -m "ci: update image tags [skip ci]" || echo "No changes to commit"
+    runs-on: self-hosted
+    needs: AI-Review
+    environment: development
 
-        - name: Configure Git remote with GITHUB_TOKEN
-          run: |
-              git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+    steps:
 
-        - name: Push changes to the current branch
-          run:
-            git push origin HEAD:${{ github.ref_name }}
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Docker login
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build web_frontend image
+        run: |
+          docker build -f services/web_frontend/Dockerfile \
+          -t jeevanugale/web_frontend:test-${{ github.sha }} .
+
+          docker push jeevanugale/web_frontend:test-${{ github.sha }}
+
+      - name: Build auth_service image
+        run: |
+          docker build -f services/auth_service/Dockerfile \
+          -t jeevanugale/auth_service:test-${{ github.sha }} .
+
+          docker push jeevanugale/auth_service:test-${{ github.sha }}
+
+      - name: Build user_service image
+        run: |
+          docker build -f services/user_service/Dockerfile \
+          -t jeevanugale/user_service:test-${{ github.sha }} .
+
+          docker push jeevanugale/user_service:test-${{ github.sha }}
+
+      - name: Build admin_service image
+        run: |
+          docker build -f services/admin_service/Dockerfile \
+          -t jeevanugale/admin_service:test-${{ github.sha }} .
+
+          docker push jeevanugale/admin_service:test-${{ github.sha }}
+
+
+  Trivy-Scan:
+
+    runs-on: self-hosted
+    needs: Docker-Build-Push
+
+    steps:
+
+      - name: Scan web image
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          scan-type: image
+          scan-ref: jeevanugale/web_frontend:test-${{ github.sha }}
+          format: table
+          exit-code: '0'
+          vuln-type: os,library
+          severity: CRITICAL,HIGH,MEDIUM
+          output: trivy-web.txt
+
+      - name: Scan auth image
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          scan-type: image
+          scan-ref: jeevanugale/auth_service:test-${{ github.sha }}
+          format: table
+          exit-code: '0'
+          vuln-type: os,library
+          severity: CRITICAL,HIGH,MEDIUM
+          output: trivy-auth.txt
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-reports
+          path: |
+            trivy-web.txt
+            trivy-auth.txt
+
+
+  Update-Compose-And-Commit:
+
+    runs-on: self-hosted
+    needs: Trivy-Scan
+
+    steps:
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update manifests
+        run: |
+          sed -i "s|test-.*|test-${{ github.sha }}|g" docker-compose.yml
+          sed -i "s|test-.*|test-${{ github.sha }}|g" k8s-manifest/*/deployment.yml
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add .
+
+          git commit -m "ci: update image tags [skip ci]" || echo "No changes"
+
+      - name: Push changes
+        run: |
+          git remote set-url origin \
+          https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+
+          git push origin HEAD:${{ github.ref_name }}
