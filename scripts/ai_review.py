@@ -49,3 +49,4 @@ if __name__ == "__main__":
 
     with open("review.txt", "w") as f:
         f.write(review)
+        
