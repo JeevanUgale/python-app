@@ -12,23 +12,26 @@ client = OpenAI(api_key=api_key)
 
 
 def read_trivy_reports():
-    files = [
-        "trivy-web.txt",
-        "trivy-auth.txt",
-        # "trivy-user.txt",
-        # "trivy-admin.txt"
-    ]
 
     combined_report = ""
 
-    for file in files:
-        if os.path.exists(file):
+    files_found = []
+
+    for file in os.listdir("."):
+        if file.startswith("trivy-") and file.endswith(".txt"):
+
+            files_found.append(file)
+
             with open(file, "r") as f:
                 combined_report += f"\n\n===== {file} =====\n"
                 combined_report += f.read()
 
-    return combined_report[:12000]  # prevent token overflow
+    if not files_found:
+        print("No Trivy report files found!")
 
+    print("Reports included:", files_found)
+
+    return combined_report[:12000]  # prevent token overflow
 
 def analyze_trivy_report(report):
 
@@ -105,4 +108,4 @@ if __name__ == "__main__":
     with open("ai-trivy-review.txt", "w") as f:
         f.write(final_report)
 
-    print("ai-review.txt generated successfully")
+    print("ai-trivy-review.txt generated successfully")
