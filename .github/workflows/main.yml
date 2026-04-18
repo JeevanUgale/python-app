@@ -10,7 +10,6 @@ on:
       - 'k8s-manifest/user-service/deployment.yml'
       - 'k8s-manifest/auth-service/deployment.yml'
       - 'k8s-manifest/web-frontend/deployment.yml'
-      - 'ai_review_results.txt'
 
 permissions:
   contents: write
@@ -92,27 +91,27 @@ jobs:
           severity: CRITICAL,HIGH,MEDIUM
           output: trivy-auth.txt
 
-      # - name: Scan user image
-      #   uses: aquasecurity/trivy-action@0.35.0
-      #   with:
-      #     scan-type: image
-      #     scan-ref: jeevanugale/user_service:test-${{ github.sha }}
-      #     format: table
-      #     exit-code: '0'
-      #     vuln-type: os,library
-      #     severity: CRITICAL,HIGH,MEDIUM
-      #     output: trivy-user.txt
+      - name: Scan user image
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          scan-type: image
+          scan-ref: jeevanugale/user_service:test-${{ github.sha }}
+          format: table
+          exit-code: '0'
+          vuln-type: os,library
+          severity: CRITICAL,HIGH,MEDIUM
+          output: trivy-user.txt
 
-      # - name: Scan admin image
-      #   uses: aquasecurity/trivy-action@0.35.0
-      #   with:
-      #     scan-type: image
-      #     scan-ref: jeevanugale/admin_service:test-${{ github.sha }}
-      #     format: table
-      #     exit-code: '0'
-      #     vuln-type: os,library
-      #     severity: CRITICAL,HIGH,MEDIUM
-      #     output: trivy-admin.txt
+      - name: Scan admin image
+        uses: aquasecurity/trivy-action@0.35.0
+        with:
+          scan-type: image
+          scan-ref: jeevanugale/admin_service:test-${{ github.sha }}
+          format: table
+          exit-code: '0'
+          vuln-type: os,library
+          severity: CRITICAL,HIGH,MEDIUM
+          output: trivy-admin.txt
 
       - name: Upload reports
         uses: actions/upload-artifact@v4
@@ -121,8 +120,8 @@ jobs:
           path: |
             trivy-web.txt
             trivy-auth.txt
-            # trivy-user.txt
-            # trivy-admin.txt
+            trivy-user.txt
+            trivy-admin.txt
 
             
   Trivy-AI-Review:
@@ -154,13 +153,13 @@ jobs:
 
       - name: Analyze reports with AI
         run: |
-          python scripts/ai_review.py
+          python ai-scripts/ai_review.py
 
       - name: Upload AI review results
         uses: actions/upload-artifact@v4
         with:
-          name: ai-review-results
-          path: ai-review.txt
+          name: ai-trivy-review
+          path: ai-trivy-review.txt
 
   Update-Compose-And-Commit:
 
