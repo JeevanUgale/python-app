@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: user-service
-          image: jeevanugale/user_service:test-22143cdb262fe0a705ef66e1e0ffa26ba849b0c6
+          image: jeevanugale/user_service:test-cabbb55d64d3a25f88190c11e7073304bd5a0c05
           ports:
             - containerPort: 5002
           envFrom:
