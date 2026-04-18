@@ -124,7 +124,7 @@ jobs:
             trivy-admin.txt
 
             
-  AI-Review for Trivy reports:
+  Trivy-AI-Review:
 
     runs-on: self-hosted
     needs: Trivy-Scan
