@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: admin-service
-          image: jeevanugale/admin_service:test-27a18e5ab671c01c68c9768c6a368025d8032b5d
+          image: jeevanugale/admin_service:test-3c3fe5eb446d7e4fb80fe5ff72dab1e164f8d839
           ports:
             - containerPort: 5003
           envFrom:
