@@ -44,6 +44,7 @@ Tasks:
 3. Identify major risks
 4. Suggest remediation steps
 5. Recommend security best practices
+6. give the seperate analysis, summary and recommendations for each image
 
 Scan Output:
 

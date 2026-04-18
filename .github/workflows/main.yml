@@ -156,20 +156,11 @@ jobs:
         run: |
           python scripts/ai_review.py
 
-      - name: Commit AI review results
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add ai-review.txt
-          git commit -m "ci: add AI review results [skip ci]" || echo "No changes"
-
-      - name: Push AI review results
-        run: |
-          git remote set-url origin \
-          https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
-          git push origin HEAD:${{ github.ref_name }}
-
-
+      - name: Upload AI review results
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-review-results
+          path: ai-review.txt
 
   Update-Compose-And-Commit:
 
