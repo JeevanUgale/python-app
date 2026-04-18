@@ -74,54 +74,54 @@ jobs:
         with:
           scan-type: image
           scan-ref: jeevanugale/web_frontend:test-${{ github.sha }}
-          format: table
+          format: json
           exit-code: '0'
           vuln-type: os,library
           severity: CRITICAL,HIGH,MEDIUM
-          output: trivy-web.txt
+          output: trivy-web.json
 
       - name: Scan auth image
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: image
           scan-ref: jeevanugale/auth_service:test-${{ github.sha }}
-          format: table
+          format: json
           exit-code: '0'
           vuln-type: os,library
           severity: CRITICAL,HIGH,MEDIUM
-          output: trivy-auth.txt
+          output: trivy-auth.json
 
       - name: Scan user image
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: image
           scan-ref: jeevanugale/user_service:test-${{ github.sha }}
-          format: table
+          format: json
           exit-code: '0'
           vuln-type: os,library
           severity: CRITICAL,HIGH,MEDIUM
-          output: trivy-user.txt
+          output: trivy-user.json
 
       - name: Scan admin image
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: image
           scan-ref: jeevanugale/admin_service:test-${{ github.sha }}
-          format: table
+          format: json
           exit-code: '0'
           vuln-type: os,library
           severity: CRITICAL,HIGH,MEDIUM
-          output: trivy-admin.txt
+          output: trivy-admin.json
 
       - name: Upload reports
         uses: actions/upload-artifact@v7
         with:
           name: trivy-reports
           path: |
-            trivy-web.txt
-            trivy-auth.txt
-            trivy-user.txt
-            trivy-admin.txt
+            trivy-web.json
+            trivy-auth.json
+            trivy-user.json
+            trivy-admin.json
 
             
   Trivy-AI-Review:
@@ -193,4 +193,3 @@ jobs:
           https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
 
           git push origin HEAD:${{ github.ref_name }}
-          
