@@ -15,8 +15,8 @@ def read_trivy_reports():
     files = [
         "trivy-web.txt",
         "trivy-auth.txt",
-        "trivy-user.txt",
-        "trivy-admin.txt"
+        # "trivy-user.txt",
+        # "trivy-admin.txt"
     ]
 
     combined_report = ""

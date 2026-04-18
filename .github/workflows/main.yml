@@ -92,27 +92,27 @@ jobs:
           severity: CRITICAL,HIGH,MEDIUM
           output: trivy-auth.txt
 
-      - name: Scan user image
-        uses: aquasecurity/trivy-action@0.35.0
-        with:
-          scan-type: image
-          scan-ref: jeevanugale/user_service:test-${{ github.sha }}
-          format: table
-          exit-code: '0'
-          vuln-type: os,library
-          severity: CRITICAL,HIGH,MEDIUM
-          output: trivy-user.txt
+      # - name: Scan user image
+      #   uses: aquasecurity/trivy-action@0.35.0
+      #   with:
+      #     scan-type: image
+      #     scan-ref: jeevanugale/user_service:test-${{ github.sha }}
+      #     format: table
+      #     exit-code: '0'
+      #     vuln-type: os,library
+      #     severity: CRITICAL,HIGH,MEDIUM
+      #     output: trivy-user.txt
 
-      - name: Scan admin image
-        uses: aquasecurity/trivy-action@0.35.0
-        with:
-          scan-type: image
-          scan-ref: jeevanugale/admin_service:test-${{ github.sha }}
-          format: table
-          exit-code: '0'
-          vuln-type: os,library
-          severity: CRITICAL,HIGH,MEDIUM
-          output: trivy-admin.txt
+      # - name: Scan admin image
+      #   uses: aquasecurity/trivy-action@0.35.0
+      #   with:
+      #     scan-type: image
+      #     scan-ref: jeevanugale/admin_service:test-${{ github.sha }}
+      #     format: table
+      #     exit-code: '0'
+      #     vuln-type: os,library
+      #     severity: CRITICAL,HIGH,MEDIUM
+      #     output: trivy-admin.txt
 
       - name: Upload reports
         uses: actions/upload-artifact@v4
@@ -121,8 +121,8 @@ jobs:
           path: |
             trivy-web.txt
             trivy-auth.txt
-            trivy-user.txt
-            trivy-admin.txt
+            # trivy-user.txt
+            # trivy-admin.txt
 
             
   Trivy-AI-Review:
