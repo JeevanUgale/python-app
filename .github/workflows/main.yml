@@ -91,7 +91,7 @@ jobs:
           severity: CRITICAL,HIGH,MEDIUM
           output: trivy-auth.txt
 
-      - name: Scan auth image
+      - name: Scan user image
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: image
@@ -102,7 +102,7 @@ jobs:
           severity: CRITICAL,HIGH,MEDIUM
           output: trivy-user.txt
 
-      - name: Scan auth image
+      - name: Scan admin image
         uses: aquasecurity/trivy-action@0.35.0
         with:
           scan-type: image
