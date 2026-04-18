@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     final_report = generate_summary(ai_analysis)
 
-    with open("ai-review.txt", "w") as f:
+    with open("ai-trivy-review.txt", "w") as f:
         f.write(final_report)
 
     print("ai-review.txt generated successfully")
