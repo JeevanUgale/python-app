@@ -152,6 +152,8 @@ jobs:
           pip install openai
 
       - name: Analyze reports with AI
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: |
           python ai-scripts/ai_review.py
 
