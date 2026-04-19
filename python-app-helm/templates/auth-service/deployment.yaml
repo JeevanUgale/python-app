@@ -39,4 +39,4 @@ spec:
             timeoutSeconds: {{ .Values.services.auth.livenessProbe.timeoutSeconds }}
             failureThreshold: {{ .Values.services.auth.livenessProbe.failureThreshold }}
           resources:
-{{ toYaml .Values.services.auth.resources | nindent 12 }}
+            {{ toYaml .Values.services.auth.resources | nindent 12 }}
