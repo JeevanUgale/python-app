@@ -41,26 +41,31 @@ Chart label helper.
 {{- end -}}
 
 {{/*
-Service labels helper.
+Service labels helper - root context must be passed in dict
 */}}
 {{- define "python-app.serviceLabels" -}}
-app: {{ index .Values.services .service "name" }}
-environment: {{ .Values.global.environment }}
+{{- $service := .service -}}
+{{- $root := .root -}}
+app: {{ index $root.Values.services $service "name" }}
+environment: {{ $root.Values.global.environment }}
 {{- end -}}
 
 {{/*
-Service selector labels helper.
+Service selector labels helper - root context must be passed in dict
 */}}
 {{- define "python-app.serviceSelectorLabels" -}}
-app: {{ index .Values.services .service "name" }}
-environment: {{ .Values.global.environment }}
+{{- $service := .service -}}
+{{- $root := .root -}}
+app: {{ index $root.Values.services $service "name" }}
+environment: {{ $root.Values.global.environment }}
 {{- end -}}
 
 {{/*
-Image helper for a specific service.
+Image helper for a specific service - root context must be passed in dict
 */}}
 {{- define "python-app.image" -}}
 {{- $svc := .service -}}
-{{- $image := index .Values.services $svc "image" -}}
+{{- $root := .root -}}
+{{- $image := index $root.Values.services $svc "image" -}}
 {{- printf "%s:%s" $image.repository $image.tag -}}
 {{- end -}}

@@ -4,16 +4,16 @@ metadata:
   name: {{ .Values.services.user.name }}-deploy
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "python-app.serviceLabels" (dict "service" "user" .) | nindent 4 }}
+    {{- include "python-app.serviceLabels" (dict "service" "user" "root" .) | nindent 4 }}
 spec:
   replicas: {{ .Values.services.user.replicas }}
   selector:
     matchLabels:
-      {{- include "python-app.serviceSelectorLabels" (dict "service" "user" .) | nindent 6 }}
+      {{- include "python-app.serviceSelectorLabels" (dict "service" "user" "root" .) | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "python-app.serviceLabels" (dict "service" "user" .) | nindent 8 }}
+        {{- include "python-app.serviceLabels" (dict "service" "user" "root" .) | nindent 8 }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: {{ .Values.services.user.name }}
-          image: {{ include "python-app.image" (dict "service" "user" .) }}
+          image: {{ include "python-app.image" (dict "service" "user" "root" .) }}
           imagePullPolicy: {{ .Values.services.user.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.services.user.port }}

@@ -4,16 +4,16 @@ metadata:
   name: {{ .Values.services.admin.name }}-deploy
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "python-app.serviceLabels" (dict "service" "admin" .) | nindent 4 }}
+    {{- include "python-app.serviceLabels" (dict "service" "admin" "root" .) | nindent 4 }}
 spec:
   replicas: {{ .Values.services.admin.replicas }}
   selector:
     matchLabels:
-      {{- include "python-app.serviceSelectorLabels" (dict "service" "admin" .) | nindent 6 }}
+      {{- include "python-app.serviceSelectorLabels" (dict "service" "admin" "root" .) | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "python-app.serviceLabels" (dict "service" "admin" .) | nindent 8 }}
+        {{- include "python-app.serviceLabels" (dict "service" "admin" "root" .) | nindent 8 }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: {{ .Values.services.admin.name }}
-          image: {{ include "python-app.image" (dict "service" "admin" .) }}
+          image: {{ include "python-app.image" (dict "service" "admin" "root" .) }}
           imagePullPolicy: {{ .Values.services.admin.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.services.admin.port }}

@@ -4,16 +4,16 @@ metadata:
   name: {{ .Values.services.auth.name }}-deploy
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "python-app.serviceLabels" (dict "service" "auth" .) | nindent 4 }}
+    {{- include "python-app.serviceLabels" (dict "service" "auth" "root" .) | nindent 4 }}
 spec:
   replicas: {{ .Values.services.auth.replicas }}
   selector:
     matchLabels:
-      {{- include "python-app.serviceSelectorLabels" (dict "service" "auth" .) | nindent 6 }}
+      {{- include "python-app.serviceSelectorLabels" (dict "service" "auth" "root" .) | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "python-app.serviceLabels" (dict "service" "auth" .) | nindent 8 }}
+        {{- include "python-app.serviceLabels" (dict "service" "auth" "root" .) | nindent 8 }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: {{ .Values.services.auth.name }}
-          image: {{ include "python-app.image" (dict "service" "auth" .) }}
+          image: {{ include "python-app.image" (dict "service" "auth" "root" .) }}
           imagePullPolicy: {{ .Values.services.auth.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.services.auth.port }}

@@ -4,10 +4,10 @@ metadata:
   name: {{ .Values.services.admin.name }}
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "python-app.serviceLabels" (dict "service" "admin" .) | nindent 4 }}
+    {{- include "python-app.serviceLabels" (dict "service" "admin" "root" .) | nindent 4 }}
 spec:
   selector:
-    {{- include "python-app.serviceSelectorLabels" (dict "service" "admin" .) | nindent 4 }}
+    {{- include "python-app.serviceSelectorLabels" (dict "service" "admin" "root" .) | nindent 4 }}
   ports:
     - port: {{ .Values.services.admin.port }}
       targetPort: {{ .Values.services.admin.port }}
