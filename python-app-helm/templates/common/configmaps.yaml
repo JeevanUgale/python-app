@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-configs
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.global.appName }}
+    environment: {{ .Values.global.environment }}
+data:
+  DB_HOST: "db-server"
+  DB_PORT: "{{ .Values.db.port }}"
+  DB_NAME: "{{ .Values.db.name }}"
+
+  ADMIN_SERVICE_PORT: "{{ .Values.services.admin.port }}"
+  USER_SERVICE_PORT: "{{ .Values.services.user.port }}"
+  AUTH_SERVICE_PORT: "{{ .Values.services.auth.port }}"
+  WEB_FRONTEND_PORT: "{{ .Values.services.web.port }}"
+
+  ADMIN_SERVICE_URL: "http://{{ .Values.services.admin.name }}:{{ .Values.services.admin.port }}"
+  USER_SERVICE_URL: "http://{{ .Values.services.user.name }}:{{ .Values.services.user.port }}"
+  AUTH_SERVICE_URL: "http://{{ .Values.services.auth.name }}:{{ .Values.services.auth.port }}"
+
+  LOG_LEVEL: "INFO"
+  ENVIRONMENT: "{{ .Values.global.environment }}"
+  DEBUG: "False"
+
+  REQUEST_TIMEOUT: "10"
+  HOST: "0.0.0.0"

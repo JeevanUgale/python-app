@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.services.user.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "python-app.serviceLabels" (dict "service" "user" .) | nindent 4 }}
+spec:
+  selector:
+    {{- include "python-app.serviceSelectorLabels" (dict "service" "user" .) | nindent 4 }}
+  ports:
+    - port: {{ .Values.services.user.port }}
+      targetPort: {{ .Values.services.user.port }}
+  type: ClusterIP

@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.admin.name }}-deploy
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "python-app.serviceLabels" (dict "service" "admin" .) | nindent 4 }}
+spec:
+  replicas: {{ .Values.services.admin.replicas }}
+  selector:
+    matchLabels:
+      {{- include "python-app.serviceSelectorLabels" (dict "service" "admin" .) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "python-app.serviceLabels" (dict "service" "admin" .) | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.services.admin.port }}"
+    spec:
+      containers:
+        - name: {{ .Values.services.admin.name }}
+          image: {{ include "python-app.image" (dict "service" "admin" .) }}
+          imagePullPolicy: {{ .Values.services.admin.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.services.admin.port }}
+          envFrom:
+            - configMapRef:
+                name: app-configs
+            - secretRef:
+                name: app-secrets
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.services.admin.livenessProbe.path }}
+              port: {{ .Values.services.admin.port }}
+            initialDelaySeconds: {{ .Values.services.admin.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.services.admin.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.services.admin.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.services.admin.livenessProbe.failureThreshold }}
+          resources:
+{{ toYaml .Values.services.admin.resources | nindent 12 }}

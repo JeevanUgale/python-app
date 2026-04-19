@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.services.web.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "python-app.serviceLabels" (dict "service" "web" .) | nindent 4 }}
+spec:
+  selector:
+    {{- include "python-app.serviceSelectorLabels" (dict "service" "web" .) | nindent 4 }}
+  ports:
+    - port: {{ .Values.services.web.port }}
+      targetPort: {{ .Values.services.web.port }}
+      nodePort: 30000
+  type: NodePort

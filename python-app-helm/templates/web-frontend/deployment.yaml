@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.web.name }}-deploy
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "python-app.serviceLabels" (dict "service" "web" .) | nindent 4 }}
+spec:
+  replicas: {{ .Values.services.web.replicas }}
+  selector:
+    matchLabels:
+      {{- include "python-app.serviceSelectorLabels" (dict "service" "web" .) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "python-app.serviceLabels" (dict "service" "web" .) | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.services.web.port }}"
+    spec:
+      containers:
+        - name: {{ .Values.services.web.name }}
+          image: {{ include "python-app.image" (dict "service" "web" .) }}
+          imagePullPolicy: {{ .Values.services.web.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.services.web.port }}
+          envFrom:
+            - configMapRef:
+                name: app-configs
+            - secretRef:
+                name: app-secrets
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.services.web.livenessProbe.path }}
+              port: {{ .Values.services.web.port }}
+            initialDelaySeconds: {{ .Values.services.web.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.services.web.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.services.web.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.services.web.livenessProbe.failureThreshold }}
+          resources:
+{{ toYaml .Values.services.web.resources | nindent 12 }}

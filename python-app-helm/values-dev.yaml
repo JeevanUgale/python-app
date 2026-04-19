@@ -1,0 +1,19 @@
+global:
+  environment: dev
+
+services:
+  admin:
+    image:
+      tag: "dev-latest"
+  auth:
+    image:
+      tag: "dev-latest"
+  user:
+    image:
+      tag: "dev-latest"
+  web:
+    image:
+      tag: "dev-latest"
+
+rbac:
+  enabled: true

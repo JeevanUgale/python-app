@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.auth.name }}-deploy
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    {{- include "python-app.serviceLabels" (dict "service" "auth" .) | nindent 4 }}
+spec:
+  replicas: {{ .Values.services.auth.replicas }}
+  selector:
+    matchLabels:
+      {{- include "python-app.serviceSelectorLabels" (dict "service" "auth" .) | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "python-app.serviceLabels" (dict "service" "auth" .) | nindent 8 }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.services.auth.port }}"
+    spec:
+      containers:
+        - name: {{ .Values.services.auth.name }}
+          image: {{ include "python-app.image" (dict "service" "auth" .) }}
+          imagePullPolicy: {{ .Values.services.auth.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.services.auth.port }}
+          envFrom:
+            - configMapRef:
+                name: app-configs
+            - secretRef:
+                name: app-secrets
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.services.auth.livenessProbe.path }}
+              port: {{ .Values.services.auth.port }}
+            initialDelaySeconds: {{ .Values.services.auth.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.services.auth.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.services.auth.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.services.auth.livenessProbe.failureThreshold }}
+          resources:
+{{ toYaml .Values.services.auth.resources | nindent 12 }}

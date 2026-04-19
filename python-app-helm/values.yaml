@@ -1,0 +1,113 @@
+global:
+  namespace: python
+  environment: dev
+  appName: python-app
+
+db:
+  host: "192.168.33.30"
+  port: 3306
+  name: "users_db"
+  user: "Zmxhc2t1c2Vy"
+  password: "Zmxhc2twYXNz"
+  rootPassword: "cm9vdA=="
+
+services:
+  admin:
+    name: admin-service
+    port: 5003
+    image:
+      repository: jeevanugale/admin_service
+      tag: "latest"
+      pullPolicy: IfNotPresent
+    replicas: 1
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+    livenessProbe:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+  auth:
+    name: auth-service
+    port: 5001
+    image:
+      repository: jeevanugale/auth_service
+      tag: "latest"
+      pullPolicy: IfNotPresent
+    replicas: 1
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+    livenessProbe:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+  user:
+    name: user-service
+    port: 5002
+    image:
+      repository: jeevanugale/user_service
+      tag: "latest"
+      pullPolicy: IfNotPresent
+    replicas: 1
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+    livenessProbe:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+  web:
+    name: web-frontend
+    port: 5000
+    image:
+      repository: jeevanugale/web_frontend
+      tag: "latest"
+      pullPolicy: IfNotPresent
+    replicas: 1
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+    livenessProbe:
+      path: /health
+      initialDelaySeconds: 30
+      periodSeconds: 10
+      timeoutSeconds: 3
+      failureThreshold: 3
+
+secrets:
+  secretKey: "MXFhejJ3c3gzZWRjNHJmdg=="
+  jwtSecret: "NXRnYjZ5aG43dWptOGlrLA=="
+  adminUsername: "YWRtaW4="
+  adminPasswordHash: "c3NjcnlwdDozMjc2ODo4OjFPMVM1Y0ZwYTlJSVZGN3NmOTA4YjUzMjczYTc3NGJhM2NiOTAwNTFiZDAxN2IzM2IwZWI5YTc2NzM5NzNiNWQwZTZiNGZiZTE2ZmM1MjMyYzMzMWVlODk1YWFlNTFlMmVlZDUxY2QyOWUzYWMzMTg1N2NjNTQ4MjNjNzc0N2E5NzAzYzllZjgyY2I5NDZm"
+
+rbac:
+  enabled: false
+  serviceAccountName: prometheus-sa
+  clusterRoleName: prometheus-sa-role
+  namespace: monitoring
