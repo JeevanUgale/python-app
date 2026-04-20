@@ -51,5 +51,5 @@ spec:
               memory: {{ .Values.services.admin.resources.requests.memory }}
               cpu: {{ .Values.services.admin.resources.requests.cpu }}
             limits:
-              memory: {{ .Values.services.admin.resources.requests.memory }}
-              cpu: {{ .Values.services.admin.resources.requests.cpu }}
+              memory: {{ .Values.services.admin.resources.limits.memory }}
+              cpu: {{ .Values.services.admin.resources.limits.cpu }}
