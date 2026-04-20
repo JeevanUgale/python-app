@@ -22,7 +22,6 @@ jobs:
     environment: development
 
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v5
 
@@ -68,7 +67,6 @@ jobs:
     needs: Docker-Build-Push
 
     steps:
-
       - name: Scan web image
         uses: aquasecurity/trivy-action@0.35.0
         with:
@@ -130,7 +128,6 @@ jobs:
     needs: Trivy-Scan
 
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v5
         with:
@@ -163,13 +160,43 @@ jobs:
           name: ai-trivy-review
           path: ai-trivy-review.txt
 
+  Update-Helm-Values-And-Commit:
+
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: update image tag with yq
+        run: |
+          yq e -i ".services.web.image.tag = \"test-${{ github.sha }}\"" python-app-helm/values.yaml
+          yq e -i ".services.auth.image.tag = \"test-${{ github.sha }}\"" python-app-helm/values.yaml
+          yq e -i ".services.user.image.tag = \"test-${{ github.sha }}\"" python-app-helm/values.yaml
+          yq e -i ".services.admin.image.tag = \"test-${{ github.sha }}\"" python-app-helm/values.yaml
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add python-app-helm/values.yaml
+          git commit -m "ci: update image tags [skip ci]" || echo "No changes"
+
+      - name: Push changes
+        run: |
+          git remote set-url origin \
+          https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
+          
+          git push origin HEAD:${{ github.ref_name }}
+
   Update-Compose-And-Commit:
 
     runs-on: self-hosted
     needs: Trivy-Scan
 
     steps:
-
       - name: Checkout code
         uses: actions/checkout@v5
         with:
