@@ -163,6 +163,7 @@ jobs:
   Update-Helm-Values-And-Commit:
 
     runs-on: self-hosted
+    needs: Trivy-AI-Review
 
     steps:
       - name: Checkout code
