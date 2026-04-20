@@ -24,7 +24,7 @@ spec:
     spec:
       containers:
         - name: web-frontend
-          image: jeevanugale/web_frontend:test-d01fe15b7ffe73ed6f0c385e00243597ce876e43
+          image: jeevanugale/web_frontend:test-267bdbaaa9d02a1a4980d08a00af721ad2f2fe89
           ports:
             - containerPort: 5000
           envFrom:
