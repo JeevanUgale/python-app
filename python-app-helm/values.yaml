@@ -7,13 +7,12 @@ db:
   host: "192.168.33.30"
   port: 3306
   name: "users_db"
-  user: "Zmxhc2t1c2Vy"
-  password: "Zmxhc2twYXNz"
-  rootPassword: "cm9vdA=="
 
 services:
   admin:
-    name: admin-service
+    name: admin-deploy
+    labels:
+      app: admin-service
     port: 5003
     image:
       repository: jeevanugale/admin_service
@@ -35,7 +34,9 @@ services:
       failureThreshold: 3
 
   auth:
-    name: auth-service
+    name: auth-deploy
+    labels:
+      app: auth-service
     port: 5001
     image:
       repository: jeevanugale/auth_service
@@ -57,7 +58,9 @@ services:
       failureThreshold: 3
 
   user:
-    name: user-service
+    name: user-deploy
+    labels:
+      app: user-service
     port: 5002
     image:
       repository: jeevanugale/user_service
@@ -79,7 +82,9 @@ services:
       failureThreshold: 3
 
   web:
-    name: web-frontend
+    name: web-deploy
+    labels:
+      app: web-frontend
     port: 5000
     image:
       repository: jeevanugale/web_frontend
@@ -101,6 +106,9 @@ services:
       failureThreshold: 3
 
 secrets:
+  dbUser: "Zmxhc2t1c2Vy"
+  dbPassword: "Zmxhc2twYXNz"
+  rootPassword: "cm9vdA=="
   secretKey: "MXFhejJ3c3gzZWRjNHJmdg=="
   jwtSecret: "NXRnYjZ5aG43dWptOGlrLA=="
   adminUsername: "YWRtaW4="
@@ -110,4 +118,5 @@ rbac:
   enabled: false
   serviceAccountName: prometheus-sa
   clusterRoleName: prometheus-sa-role
+  clusterBindingName: sa-clusterrolebinding
   namespace: monitoring

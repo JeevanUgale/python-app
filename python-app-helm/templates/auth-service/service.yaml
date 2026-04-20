@@ -1,13 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ .Values.services.auth.name }}
+  name: {{ .Values.services.auth.labels.app }}
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "python-app.serviceLabels" (dict "service" "auth" "root" .) | nindent 4 }}
+    app: {{ .Values.services.auth.labels.app }}
+    environment: {{ .Values.global.environment }}
 spec:
   selector:
-    {{- include "python-app.serviceSelectorLabels" (dict "service" "auth" "root" .) | nindent 4 }}
+    app: {{ .Values.services.auth.labels.app }}
+    environment: {{ .Values.global.environment }}
   ports:
     - port: {{ .Values.services.auth.port }}
       targetPort: {{ .Values.services.auth.port }}

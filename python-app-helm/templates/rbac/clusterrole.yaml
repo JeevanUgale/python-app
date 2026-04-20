@@ -4,7 +4,7 @@ kind: ClusterRole
 metadata:
   name: {{ .Values.rbac.clusterRoleName }}
   labels:
-    app: monitoring
+    app: {{ .Values.rbac.namespace}}
     environment: {{ .Values.global.environment }}
 rules:
   - apiGroups: [""]

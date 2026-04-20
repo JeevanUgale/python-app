@@ -16,10 +16,10 @@ data:
   AUTH_SERVICE_PORT: "{{ .Values.services.auth.port }}"
   WEB_FRONTEND_PORT: "{{ .Values.services.web.port }}"
 
-  ADMIN_SERVICE_URL: "http://{{ .Values.services.admin.name }}:{{ .Values.services.admin.port }}"
-  USER_SERVICE_URL: "http://{{ .Values.services.user.name }}:{{ .Values.services.user.port }}"
-  AUTH_SERVICE_URL: "http://{{ .Values.services.auth.name }}:{{ .Values.services.auth.port }}"
-
+  ADMIN_SERVICE_URL: "http://{{ .Values.services.admin.labels.app }}:{{ .Values.services.admin.port }}"
+  USER_SERVICE_URL: "http://{{ .Values.services.user.labels.app }}:{{ .Values.services.user.port }}"
+  AUTH_SERVICE_URL: "http://{{ .Values.services.auth.labels.app }}:{{ .Values.services.auth.port }}"
+  
   LOG_LEVEL: "INFO"
   ENVIRONMENT: "{{ .Values.global.environment }}"
   DEBUG: "False"

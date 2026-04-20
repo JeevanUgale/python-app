@@ -1,27 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.services.user.name }}-deploy
+  name: {{ .Values.services.user.name }}
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "python-app.serviceLabels" (dict "service" "user" "root" .) | nindent 4 }}
+    app: {{ .Values.services.user.labels.app }}
+    environment: {{ .Values.global.environment }}
+
 spec:
   replicas: {{ .Values.services.user.replicas }}
   selector:
     matchLabels:
-      {{- include "python-app.serviceSelectorLabels" (dict "service" "user" "root" .) | nindent 6 }}
+      app: {{ .Values.services.user.labels.app }}
+      environment: {{ .Values.global.environment }}
   template:
     metadata:
       labels:
-        {{- include "python-app.serviceLabels" (dict "service" "user" "root" .) | nindent 8 }}
+        app: {{ .Values.services.user.labels.app }}
+        environment: {{ .Values.global.environment }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
         prometheus.io/port: "{{ .Values.services.user.port }}"
+
     spec:
       containers:
-        - name: {{ .Values.services.user.name }}
-          image: {{ include "python-app.image" (dict "service" "user" "root" .) }}
+        - name: {{ .Values.services.user.labels.app }}
+          image: {{ .Values.services.user.image.repository }}:{{ .Values.services.user.image.tag }}
           imagePullPolicy: {{ .Values.services.user.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.services.user.port }}
@@ -30,6 +35,7 @@ spec:
                 name: app-configs
             - secretRef:
                 name: app-secrets
+
           livenessProbe:
             httpGet:
               path: {{ .Values.services.user.livenessProbe.path }}
@@ -38,5 +44,11 @@ spec:
             periodSeconds: {{ .Values.services.user.livenessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.services.user.livenessProbe.timeoutSeconds }}
             failureThreshold: {{ .Values.services.user.livenessProbe.failureThreshold }}
+
           resources:
-            {{ toYaml .Values.services.user.resources | nindent 12 }}
+            requests:
+              memory: {{ .Values.services.user.resources.requests.memory }}
+              cpu: {{ .Values.services.user.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.services.user.resources.limits.memory }}
+              cpu: {{ .Values.services.user.resources.limits.cpu }}

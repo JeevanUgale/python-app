@@ -1,27 +1,32 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Values.services.auth.name }}-deploy
+  name: {{ .Values.services.auth.name }}
   namespace: {{ .Values.global.namespace }}
   labels:
-    {{- include "python-app.serviceLabels" (dict "service" "auth" "root" .) | nindent 4 }}
+    app: {{ .Values.services.auth.labels.app }}
+    environment: {{ .Values.global.environment }}
+
 spec:
   replicas: {{ .Values.services.auth.replicas }}
   selector:
     matchLabels:
-      {{- include "python-app.serviceSelectorLabels" (dict "service" "auth" "root" .) | nindent 6 }}
+      app: {{ .Values.services.auth.labels.app }}
+      environment: {{ .Values.global.environment }}
   template:
     metadata:
       labels:
-        {{- include "python-app.serviceLabels" (dict "service" "auth" "root" .) | nindent 8 }}
+        app: {{ .Values.services.auth.labels.app }}
+        environment: {{ .Values.global.environment }}
       annotations:
         prometheus.io/scrape: "true"
         prometheus.io/path: "/metrics"
         prometheus.io/port: "{{ .Values.services.auth.port }}"
+
     spec:
       containers:
-        - name: {{ .Values.services.auth.name }}
-          image: {{ include "python-app.image" (dict "service" "auth" "root" .) }}
+        - name: {{ .Values.services.auth.labels.app }}
+          image: {{ .Values.services.auth.image.repository }}:{{ .Values.services.auth.image.tag }}
           imagePullPolicy: {{ .Values.services.auth.image.pullPolicy }}
           ports:
             - containerPort: {{ .Values.services.auth.port }}
@@ -30,6 +35,7 @@ spec:
                 name: app-configs
             - secretRef:
                 name: app-secrets
+
           livenessProbe:
             httpGet:
               path: {{ .Values.services.auth.livenessProbe.path }}
@@ -38,5 +44,11 @@ spec:
             periodSeconds: {{ .Values.services.auth.livenessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.services.auth.livenessProbe.timeoutSeconds }}
             failureThreshold: {{ .Values.services.auth.livenessProbe.failureThreshold }}
+
           resources:
-            {{ toYaml .Values.services.auth.resources | nindent 12 }}
+            requests:
+              memory: {{ .Values.services.auth.resources.requests.memoty }}
+              cpu: {{ .Values.services.auth.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.services.auth.resources.limits.memory }}
+              cpu: {{ .Values.services.auth.resources.limits.cpu }}

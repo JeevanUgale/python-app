@@ -2,9 +2,9 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: {{ .Values.rbac.clusterRoleName }}-binding
+  name: {{ .Values.rbac.clusterBindingName }}
   labels:
-    app: monitoring
+    app: {{ .Values.rbac.namespace}}
     environment: {{ .Values.global.environment }}
 subjects:
   - kind: ServiceAccount
