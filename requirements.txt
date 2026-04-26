@@ -13,3 +13,4 @@ Werkzeug==2.3.7
 # For development and testing
 pytest==7.4.3
 pytest-flask==1.2.0
+prometheus_client==0.16.0

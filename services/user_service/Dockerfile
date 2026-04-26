@@ -2,8 +2,10 @@ FROM python:3.11-slim
 
 COPY . /app
 
-WORKDIR /app/services/user_service
+WORKDIR /app
 
-RUN pip install --upgrade pip && pip install -r requirements.txt
+ENV PYTHONPATH=/app
 
-CMD ["python", "app.py"]
+RUN pip install --upgrade pip && pip install -r services/user_service/requirements.txt
+
+CMD ["python", "services/user_service/app.py"]

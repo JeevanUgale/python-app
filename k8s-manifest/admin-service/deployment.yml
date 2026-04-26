@@ -17,10 +17,14 @@ spec:
       labels:
         app: admin-service
         environment: dev
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "5003"
     spec:
       containers:
         - name: admin-service
-          image: jeevanugale/admin_service:main-763c6b2f9e21df966dd5bc3e71e8351e127ed770
+          image: jeevanugale/admin_service:test-99e41c94b8fc751aa938565e338f653fe9c18988
           ports:
             - containerPort: 5003
           envFrom:

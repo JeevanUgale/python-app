@@ -2,10 +2,13 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
 import jwt
+import logging
 import os
 from datetime import datetime, timedelta
 from pathlib import Path
 from dotenv import load_dotenv
+
+from shared.utils import setup_prometheus
 
 # Load .env from project root
 basedir = Path(__file__).resolve().parents[2]
@@ -62,7 +65,9 @@ class User(db.Model):
 
 def create_app():
     app = Flask(__name__)
-    
+    setup_prometheus(app, 'auth-service')
+    logger = logging.getLogger('auth-service')
+
     # Configuration
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'dev-secret-key'
     DB_USER = os.environ.get('DB_USER') or 'root'
@@ -83,7 +88,7 @@ def create_app():
     with app.app_context():
         try:
             db.create_all()
-            print("✅ Auth Service: Database connected and tables created")
+            logger.info("✅ Auth Service: Database connected and tables created")
             
             # Create default admin user if it doesn't exist
             admin_username = os.environ.get('ADMIN_USERNAME', 'admin')
@@ -93,10 +98,10 @@ def create_app():
                 admin_user = AdminUser(username=admin_username, password_hash=admin_password_hash)
                 db.session.add(admin_user)
                 db.session.commit()
-                print(f"✅ Created default admin user: {admin_username}")
+                logger.info(f"✅ Created default admin user: {admin_username}")
             
         except Exception as e:
-            print(f"⚠️  Auth Service: Database connection failed: {e}")
+            logger.error(f"⚠️  Auth Service: Database connection failed: {e}")
 
     @app.route('/health', methods=['GET'])
     def health_check():
@@ -253,7 +258,8 @@ def run():
     port = int(os.environ.get('AUTH_SERVICE_PORT', 5001))
     host = os.environ.get('HOST', '0.0.0.0')
     debug = os.environ.get('DEBUG', 'False').lower() == 'true'
-    print(f"🔐 Starting Auth Service on {host}:{port}")
+    logger = logging.getLogger('auth-service')
+    logger.info(f"🔐 Starting Auth Service on {host}:{port}")
     app.run(host=host, port=port, debug=debug)
 
 

@@ -14,6 +14,9 @@ A microservices-based Flask application with authentication, user management, an
 - Python 3.11+
 - MySQL 8.0+
 - Git
+- Docker (for containerized deployments)
+- Kubernetes cluster (for K8s deployment)
+- Helm (for Helm deployment)
 
 ## Setup Instructions
 
@@ -23,7 +26,7 @@ A microservices-based Flask application with authentication, user management, an
 
 ```bash
 git clone <repository-url>
-cd pythhon-app
+cd python-app
 
 # 1. Create the database (requires MySQL root access)
 mysql -u root -p < create_DB_Dump.sql
@@ -41,25 +44,136 @@ cp .env.example .env
 
 # Edit .env with your database credentials and secrets
 ```
-**Edit the service URL's with the docker service name (admin, user, auth, web) -- mentioned in the docker-compose.yml**
 
-### 3. Run docker compose file
+**Note:** For containerized deployments, edit the service URLs in .env with the docker service names (admin, user, auth, web) as mentioned in the docker-compose.yml.
+
+## Deployment Options
+
+### Option 1: Docker Compose Deployment
+
+#### Build and Run with Docker Compose
 
 ```bash
+# Build the images
+docker compose build
+
+# Run the services
 docker compose up -d
 ```
 
-### 4. Verify docker containers status
+#### Verify Docker Containers
 
 ```bash
 docker compose ps
 ```
 
+#### Stop the Services
 
-### 6. Access Application
+```bash
+docker compose down
+```
 
-- **Web App**: http://localhost:5000
-- **Admin Login**: Use admin/admin (configured in .env)
+### Option 2: Kubernetes Deployment
+
+#### Prerequisites
+- A running Kubernetes cluster
+- `kubectl` configured to access the cluster
+
+#### Deploy to Kubernetes
+
+```bash
+# Create the namespace
+kubectl apply -f k8s-manifest/namespace.yml
+
+# Deploy ConfigMaps and Secrets
+kubectl apply -f k8s-manifest/common/
+
+# Deploy Service Account and RBAC
+kubectl apply -f k8s-manifest/serviceac/
+
+# Deploy Database Server (if not using external DB)
+kubectl apply -f k8s-manifest/db-server.yml
+
+# Deploy Services
+kubectl apply -f k8s-manifest/admin-service/
+kubectl apply -f k8s-manifest/auth-service/
+kubectl apply -f k8s-manifest/user-service/
+kubectl apply -f k8s-manifest/web-frontend/
+```
+
+#### Verify Deployment
+
+```bash
+kubectl get pods -n python
+kubectl get services -n python
+```
+
+#### Access the Application
+
+- Get the external IP of the web-frontend service:
+```bash
+kubectl get svc web-frontend -n python
+```
+
+- Access the application at `http://<external-ip>:5000`
+
+#### Clean Up
+
+```bash
+kubectl delete -f k8s-manifest/ --recursive
+```
+
+### Option 3: Helm Deployment
+
+#### Prerequisites
+- A running Kubernetes cluster
+- `kubectl` configured to access the cluster
+- Helm installed
+
+#### Install the Helm Chart
+
+```bash
+# Add the chart repository (if hosted remotely) or use local path
+cd python-app-helm
+
+# For development environment
+helm install python-app-dev . -f values-dev.yaml -n python --create-namespace
+
+# For production environment
+helm install python-app-prod . -f values-prod.yaml -n python --create-namespace
+
+# Or use default values
+helm install python-app . -n python --create-namespace
+```
+
+#### Verify Helm Deployment
+
+```bash
+helm list -n python
+kubectl get pods -n python
+kubectl get services -n python
+```
+
+#### Access the Application
+
+- Get the external IP of the web-frontend service:
+```bash
+kubectl get svc web-frontend -n python
+```
+
+- Access the application at `http://<external-ip>:5000`
+
+#### Upgrade the Release
+
+```bash
+helm upgrade python-app . -n python
+```
+
+#### Uninstall the Release
+
+```bash
+helm uninstall python-app -n python
+```
 
 ## API Endpoints
 
@@ -93,3 +207,5 @@ docker compose ps
 - **Database connection errors**: Check MySQL is running and credentials in .env
 - **Service startup failures**: Ensure all dependencies are installed
 - **Authentication issues**: Verify JWT_SECRET in all services matches
+- **Container issues**: Check Docker/Kubernetes logs for detailed error messages
+- **Helm deployment issues**: Use `helm status <release-name> -n python` to check release status

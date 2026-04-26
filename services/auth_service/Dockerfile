@@ -2,8 +2,10 @@ FROM python:3.11-slim
 
 COPY . /app
 
-WORKDIR /app/services/auth_service
+WORKDIR /app
 
-RUN pip install --upgrade pip && pip install -r requirements.txt
+ENV PYTHONPATH=/app
 
-CMD ["python", "app.py"]
+RUN pip install --upgrade pip && pip install -r services/auth_service/requirements.txt
+
+CMD ["python", "services/auth_service/app.py"]
