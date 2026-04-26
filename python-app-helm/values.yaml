@@ -14,7 +14,7 @@ services:
     port: 5003
     image:
       repository: jeevanugale/admin_service
-      tag: "main-99e41c94b8fc751aa938565e338f653fe9c18988"
+      tag: "main-eda45735aeb526cb4f3f8182f7d176568d4120cb"
       pullPolicy: IfNotPresent
     replicas: 1
     resources:
@@ -37,7 +37,7 @@ services:
     port: 5001
     image:
       repository: jeevanugale/auth_service
-      tag: "main-99e41c94b8fc751aa938565e338f653fe9c18988"
+      tag: "main-eda45735aeb526cb4f3f8182f7d176568d4120cb"
       pullPolicy: IfNotPresent
     replicas: 1
     resources:
@@ -60,7 +60,7 @@ services:
     port: 5002
     image:
       repository: jeevanugale/user_service
-      tag: "main-99e41c94b8fc751aa938565e338f653fe9c18988"
+      tag: "main-eda45735aeb526cb4f3f8182f7d176568d4120cb"
       pullPolicy: IfNotPresent
     replicas: 1
     resources:
@@ -83,7 +83,7 @@ services:
     port: 5000
     image:
       repository: jeevanugale/web_frontend
-      tag: "main-99e41c94b8fc751aa938565e338f653fe9c18988"
+      tag: "main-eda45735aeb526cb4f3f8182f7d176568d4120cb"
       pullPolicy: IfNotPresent
     replicas: 1
     resources:
