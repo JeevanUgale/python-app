@@ -6,6 +6,10 @@ metadata:
   labels:
     app: web-frontend
     environment: dev
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/path: "/metrics"
+    prometheus.io/port: "5000"
 spec:
   replicas: 1
   selector:
@@ -20,7 +24,7 @@ spec:
     spec:
       containers:
         - name: web-frontend
-          image: jeevanugale/web_frontend:bugfix-950f126166927661db5a568b136b12538d5128d8
+          image: jeevanugale/web_frontend:test-99e41c94b8fc751aa938565e338f653fe9c18988
           ports:
             - containerPort: 5000
           envFrom:

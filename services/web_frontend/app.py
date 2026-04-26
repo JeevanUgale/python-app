@@ -1,3 +1,4 @@
+import logging
 import os
 from flask import Flask, render_template, redirect, url_for, flash, request as flask_request, session
 from flask_wtf import FlaskForm
@@ -7,6 +8,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 from functools import wraps
 from clients.service_clients import AuthServiceClient, UserServiceClient, AdminServiceClient
+
+from shared.utils import setup_prometheus
 
 # Load .env from project root
 basedir = Path(__file__).resolve().parents[2]
@@ -78,6 +81,8 @@ def admin_required(f):
 
 def create_app():
     app = Flask(__name__, template_folder='templates', static_folder='static')
+    setup_prometheus(app, 'web-frontend')
+    logger = logging.getLogger('web-frontend')
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'dev-secret-key'
 
     @app.route('/health', methods=['GET'])
@@ -254,10 +259,11 @@ def run():
     port = int(os.environ.get('WEB_FRONTEND_PORT', 5000))
     host = os.environ.get('HOST', '0.0.0.0')
     debug = os.environ.get('DEBUG', 'False').lower() == 'true'
-    print(f"🌐 Starting Web Frontend on {host}:{port}")
-    print(f"Auth Service URL: {AUTH_SERVICE_URL}")
-    print(f"User Service URL: {USER_SERVICE_URL}")
-    print(f"Admin Service URL: {ADMIN_SERVICE_URL}")
+    logger = logging.getLogger('web-frontend')
+    logger.info(f"🌐 Starting Web Frontend on {host}:{port}")
+    logger.info(f"Auth Service URL: {AUTH_SERVICE_URL}")
+    logger.info(f"User Service URL: {USER_SERVICE_URL}")
+    logger.info(f"Admin Service URL: {ADMIN_SERVICE_URL}")
     app.run(host=host, port=port, debug=debug)
 
 

@@ -2,8 +2,10 @@ FROM python:3.11-slim
 
 COPY . /app
 
-WORKDIR /app/services/web_frontend
+WORKDIR /app
 
-RUN pip install --upgrade pip && pip install -r requirements.txt
+ENV PYTHONPATH=/app
 
-CMD ["python", "app.py"]
+RUN pip install --upgrade pip && pip install -r services/web_frontend/requirements.txt
+
+CMD ["python", "services/web_frontend/app.py"]

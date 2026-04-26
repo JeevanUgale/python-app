@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.services.web.name }}
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: {{ .Values.services.web.labels.app }}
+    environment: {{ .Values.global.environment }}
+spec:
+  replicas: {{ .Values.services.web.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.services.web.labels.app }}
+      environment: {{ .Values.global.environment }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.services.web.labels.app }}
+        environment: {{ .Values.global.environment }}
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: "/metrics"
+        prometheus.io/port: "{{ .Values.services.web.port }}"
+    spec:
+      containers:
+        - name: {{ .Values.services.web.labels.app }}
+          image: {{ .Values.services.web.image.repository }}:{{ .Values.services.web.image.tag }}
+          imagePullPolicy: {{ .Values.services.web.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.services.web.port }}
+          envFrom:
+            - configMapRef:
+                name: app-configs
+            - secretRef:
+                name: app-secrets
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.services.web.livenessProbe.path }}
+              port: {{ .Values.services.web.port }}
+            initialDelaySeconds: {{ .Values.services.web.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.services.web.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.services.web.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ .Values.services.web.livenessProbe.failureThreshold }}
+          resources:
+            requests:
+              memory: {{ .Values.services.web.resources.requests.memory }}
+              cpu: {{ .Values.services.web.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.services.web.resources.limits.memory }}
+              cpu: {{ .Values.services.web.resources.limits.cpu }}

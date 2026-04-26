@@ -22,6 +22,6 @@ metadata:
     environment: dev
 subsets:
   - addresses:
-      - ip: 0.0.0.0
+      - ip: 192.168.33.30
     ports:
       - port: 3306

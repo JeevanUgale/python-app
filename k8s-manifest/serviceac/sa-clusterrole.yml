@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-sa-role
+  labels:
+    app: monitoring
+    environment: dev
+rules:
+- apiGroups: [""]
+  resources: ["pods", "services", "endpoints", "events", "namespaces", "nodes","configmaps"]
+  verbs: ["get", "watch", "list"]
+- apiGroups: ["apps"]
+  resources: ["deployments", "replicasets", "statefulsets", "daemonsets"]
+  verbs: ["get", "watch", "list"]

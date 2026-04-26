@@ -2,9 +2,11 @@ FROM python:3.11-slim
 
 COPY . /app
 
-WORKDIR /app/services/admin_service
+WORKDIR /app
 
-RUN pip install --upgrade pip && pip install -r requirements.txt
+ENV PYTHONPATH=/app
+
+RUN pip install --upgrade pip && pip install -r services/admin_service/requirements.txt
 
 
-CMD ["python", "app.py"]
+CMD ["python", "services/admin_service/app.py"]

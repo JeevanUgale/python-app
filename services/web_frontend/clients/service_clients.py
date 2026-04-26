@@ -1,5 +1,8 @@
+import logging
 import requests
 import time
+
+logger = logging.getLogger('service_clients')
 
 
 class CircuitBreaker:
@@ -134,7 +137,7 @@ class UserServiceClient:
                 return response.json().get('users', [])
             return []
         except Exception as e:
-            print(f"Error getting users: {e}")
+            logger.error(f"Error getting users: {e}")
             return []
     
     @retry_with_backoff(max_retries=3)
@@ -150,7 +153,7 @@ class UserServiceClient:
                 return response.json().get('user')
             return None
         except Exception as e:
-            print(f"Error getting user {user_id}: {e}")
+            logger.error(f"Error getting user {user_id}: {e}")
             return None
     
     @retry_with_backoff(max_retries=3)
@@ -165,7 +168,7 @@ class UserServiceClient:
             )
             return response.status_code == 201
         except Exception as e:
-            print(f"Error creating user: {e}")
+            logger.error(f"Error creating user: {e}")
             return False
     
     @retry_with_backoff(max_retries=3)
@@ -183,7 +186,7 @@ class UserServiceClient:
             )
             return response.status_code == 200
         except Exception as e:
-            print(f"Error updating user {user_id}: {e}")
+            logger.error(f"Error updating user {user_id}: {e}")
             return False
     
     @retry_with_backoff(max_retries=3)
@@ -197,7 +200,7 @@ class UserServiceClient:
             )
             return response.status_code == 200
         except Exception as e:
-            print(f"Error deleting user {user_id}: {e}")
+            logger.error(f"Error deleting user {user_id}: {e}")
             return False
 
 
@@ -222,7 +225,7 @@ class AdminServiceClient:
                 return response.json().get('dashboard')
             return None
         except Exception as e:
-            print(f"Error getting dashboard: {e}")
+            logger.error(f"Error getting dashboard: {e}")
             return None
     
     @retry_with_backoff(max_retries=3)
@@ -238,7 +241,7 @@ class AdminServiceClient:
                 return response.json().get('users', [])
             return []
         except Exception as e:
-            print(f"Error getting admin users: {e}")
+            logger.error(f"Error getting admin users: {e}")
             return []
     
     @retry_with_backoff(max_retries=3)
@@ -252,5 +255,5 @@ class AdminServiceClient:
             )
             return response.status_code == 200
         except Exception as e:
-            print(f"Error deleting user {user_id}: {e}")
+            logger.error(f"Error deleting user {user_id}: {e}")
             return False

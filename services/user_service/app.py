@@ -1,10 +1,13 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 import jwt
+import logging
 import os
 from functools import wraps
 from dotenv import load_dotenv
 from pathlib import Path
+
+from shared.utils import setup_prometheus
 
 # Load .env from project root
 basedir = Path(__file__).resolve().parents[2]
@@ -39,7 +42,9 @@ class User(db.Model):
 
 def create_app():
     app = Flask(__name__)
-    
+    setup_prometheus(app, 'user-service')
+    logger = logging.getLogger('user-service')
+
     # Configuration
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') or 'dev-secret-key'
     DB_USER = os.environ.get('DB_USER') or 'root'
@@ -59,9 +64,9 @@ def create_app():
     with app.app_context():
         try:
             db.create_all()
-            print("✅ User Service: Database connected and tables created")
+            logger.info("✅ User Service: Database connected and tables created")
         except Exception as e:
-            print(f"⚠️  User Service: Database connection failed: {e}")
+            logger.error(f"⚠️  User Service: Database connection failed: {e}")
 
     def verify_token(f):
         """Decorator to verify JWT token"""
@@ -297,7 +302,8 @@ def run():
     port = int(os.environ.get('USER_SERVICE_PORT', 5002))
     host = os.environ.get('HOST', '0.0.0.0')
     debug = os.environ.get('DEBUG', 'False').lower() == 'true'
-    print(f"👥 Starting User Service on {host}:{port}")
+    logger = logging.getLogger('user-service')
+    logger.info(f"👥 Starting User Service on {host}:{port}")
     app.run(host=host, port=port, debug=debug)
 
 

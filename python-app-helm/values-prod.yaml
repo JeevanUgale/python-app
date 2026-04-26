@@ -1,0 +1,51 @@
+global:
+  environment: prod
+
+services:
+  admin:
+    image:
+      tag: "v1.0.0"
+    replicas: 3
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  auth:
+    image:
+      tag: "v1.0.0"
+    replicas: 3
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  user:
+    image:
+      tag: "v1.0.0"
+    replicas: 3
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+  web:
+    image:
+      tag: "v1.0.0"
+    replicas: 3
+    resources:
+      requests:
+        memory: "256Mi"
+        cpu: "200m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+rbac:
+  enabled: false
