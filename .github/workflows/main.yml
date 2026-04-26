@@ -222,4 +222,4 @@ jobs:
           git remote set-url origin \
           https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git pull origin ${{ github.ref_name }} --rebase
-          git push origin HEAD:${{ github.ref_name }}
+          git push origin HEAD:${{ github.ref_name }} 
