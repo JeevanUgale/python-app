@@ -89,7 +89,7 @@ kubectl apply -f k8s-manifest/namespace.yml
 kubectl apply -f k8s-manifest/common/
 
 # Deploy Service Account and RBAC
-kubectl apply -f k8s-manifest/serviceac/
+kubectl apply -f k8s-manifest/services/
 
 # Deploy Database Server (if not using external DB)
 kubectl apply -f k8s-manifest/db-server.yml
